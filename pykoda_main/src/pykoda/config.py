@@ -4,20 +4,20 @@ import configparser
 
 import appdirs
 
+
 default_config = {
-    'api_key': ' z2bcICR0EPWbbDAuyr4tzK-eXZ-ADhrLtdvie5UYkjw',
+    'api_key': '',
     'cache_dir': appdirs.user_cache_dir('pykoda'),
     'n_cpu': str(os.cpu_count())
 }
 
-CONFIG_FILE = appdirs.user_config_dir('pykoda')
-if os.path.exists(CONFIG_FILE):
+CONFIG_DIR = appdirs.user_config_dir('pykoda')
+CONFIG_FILE = CONFIG_DIR + "\\config.ini"
+if os.path.exists(CONFIG_DIR):
     parser = configparser.ConfigParser()
     parser.read(CONFIG_FILE)
-    if 'all' in parser:
-        config_data = parser['all']
-    else:
-        config_data = default_config
+
+    config_data = parser['all']
 else:
     config_data = dict()
 
