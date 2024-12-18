@@ -27,7 +27,7 @@ from .getdata import download_file
 
 
 def _get_static_data_path(company: str, date: str) -> str:
-    return f'{config.CACHE_DIR}/{company}_static_{date.replace("-", "_")}'
+    return f'{config.CACHE_DIR}\\{company}_static_{date.replace("-", "_")}'
 
 
 def get_static_data(date: str, company: str, outfolder: (str, None) = None) -> None:
@@ -42,7 +42,10 @@ def get_static_data(date: str, company: str, outfolder: (str, None) = None) -> N
     # ------------------------------------------------------------------------
     # Create data dir
     # ------------------------------------------------------------------------
-    ey.shell('mkdir -p {outfolder}'.format(outfolder=outfolder))
+    #ey.shell('mkdir -p {outfolder}'.format(outfolder=outfolder))
+
+    if not os.path.exists(outfolder):
+        os.makedirs(outfolder)
 
     # ------------------------------------------------------------------------
     # Download data
@@ -65,5 +68,38 @@ def get_static_data(date: str, company: str, outfolder: (str, None) = None) -> N
     # ------------------------------------------------------------------------
     # Extract .zip bz2 archive
     # ------------------------------------------------------------------------
-    untar = ey.shell((
-        'unzip -d {outfolder} {archive}'.format(outfolder=outfolder, archive=download.outputs['file'])))
+    #untar = ey.shell((
+    #    'unzip -d {outfolder} {archive}'.format(outfolder=outfolder, archive=download.outputs['file'])))
+
+    # Ensure the output folder exists
+    os.makedirs(outfolder, exist_ok=True)
+
+    import magic
+
+    file_path = download.outputs['file']
+    file_type = magic.from_file(file_path)
+    mime_type = magic.from_file(file_path, mime=True)
+
+    #print(f"path: {file_path}")
+
+    #print(f"File type: {file_type}")
+    #print(f"MIME type: {mime_type}")
+
+    if file_type == "Java archive data (JAR)":
+        import zipfile
+
+        with zipfile.ZipFile(file_path, 'r') as jar:
+            # Extract all files to the output folder
+            jar.extractall(outfolder)
+            #print(f"Extracted JAR contents to {outfolder}")
+
+    else:
+        import py7zr
+
+        # Extract the .7z file
+        archive_path = download.outputs['file']
+        with py7zr.SevenZipFile(archive_path, mode='r') as z:
+            z.extractall(path=outfolder)
+
+        #print(f"Extracted 7zip contents to {outfolder}")
+
