@@ -66,6 +66,9 @@ def get_data_range(feed: str, company: str, start_date: str, start_hour: int = 0
 
     merge_static includes some information from the static feed.
     """
+
+    #print(f"Analysing feed: {feed}")
+
     if feed not in ('VehiclePositions', 'TripUpdates', 'ServiceAlerts'):
         raise ValueError(f'Feed {feed} not recognised.')
     if company not in ('dt', 'klt', 'otraf', 'skane', 'sl', 'ul', 'varm', 'xt'):
@@ -82,6 +85,7 @@ def get_data_range(feed: str, company: str, start_date: str, start_hour: int = 0
         date, time_code = str(date_hour).split()
         hour = int(time_code.split(':')[0])
         full_path = getdata._get_data_path(company, feed=feed, hour=hour, date=date)
+        #print(f"full_path: {full_path}")
         if not os.path.exists(full_path):
             # Download if it doesn't exist'
             try:
@@ -94,12 +98,15 @@ def get_data_range(feed: str, company: str, start_date: str, start_hour: int = 0
         if clear_duplicates:
             _clear_duplicates(df, feed)
 
+        #df.info()
+
         if feed == 'VehiclePositions':
             if 'trip_id' in df:
                 # For vehicle positions, skip data that does not correspond to routes.
                 df = df.query('trip_id.notna()', engine='python')
             else:
                 df = pd.DataFrame()
+
 
         if merge_static and not df.empty:
             this_static = load_static_data(company, date, remove_unused_stations=True)

@@ -92,7 +92,8 @@ def _get_data_path(company: str, feed: str, date: str, hour: (int, str)) -> str:
 def _parse_gtfs(gtfsrt: bytes) -> pd.DataFrame:
     # Read in to a FeedMessage class, of the GTFS-RT format
     msg = gtfs_realtime_pb2.FeedMessage()
-    pbfile = gzip.decompress(gtfsrt)
+    #pbfile = gzip.decompress(gtfsrt)
+    pbfile = gtfsrt
     msg.ParseFromString(pbfile)
 
     msg_json = json_format.MessageToJson(msg)
@@ -193,7 +194,7 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
         koda_url = f"https://koda.linkoping-ri.se/KoDa/api/v0.1?company={company}&feed={feed}&date={date}"
     else:
         koda_url = f'https://koda.linkoping-ri.se/KoDa/api/v2/gtfs-rt/{company}/{feed}?date={date}&hour={hour}&key={config.API_KEY}'
-    out_path = f'{config.CACHE_DIR}/' + f'{company}-{feed}-{date}.bz2'.lower()
+    out_path = f'{config.CACHE_DIR}\\' + f'{company}-{feed}-{date}-{hour}.7z'.lower()
     download = ey.func(download_file, inputs={'url': koda_url}, outputs={'file': out_path})
 
     # Check the file:
@@ -212,6 +213,54 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
     # ------------------------------------------------------------------------
 
     def merge_files(task):
+        bz2_file_name = tar_file_name
+
+        import py7zr
+        import os
+        import pandas as pd
+        from joblib import Parallel, delayed
+
+        # Temporary directory for extracting 7-Zip contents
+        temp_dir = config.CACHE_DIR + "\\extracted_files"
+
+        # Extract the 7-Zip file
+        with py7zr.SevenZipFile(bz2_file_name, mode='r') as archive:
+            archive.extractall(path=temp_dir)
+
+        # Iterate through extracted files to find matching ones
+        _prefix = f'{temp_dir}\\{company}\\{feed}\\{data_date.year}\\' \
+                  f'{str(data_date.month).zfill(2)}\\{str(data_date.day).zfill(2)}\\{str(hour).zfill(2)}\\'
+
+        matching_files = []
+        for root, _, files in os.walk(temp_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                #print(file_path)
+                if file_path.startswith(_prefix) and 'Duplicate' not in file_path:
+                    matching_files.append(file_path)
+
+        if len(matching_files) == 0:
+            # No matching files. Save an empty file.
+            pd.DataFrame().reset_index().to_feather(task.outputs['outfile'])
+        else:
+            # Process matching files
+            parsed_files = Parallel(n_jobs=config.N_CPU, verbose=0)(
+                delayed(_parse_gtfs)(open(file, 'rb').read()) for file in matching_files
+            )
+
+            # Combine the parsed dataframes
+            merged_df = pd.concat(parsed_files)
+
+            # Save or process `merged_df` as required
+
+        # Clean up the temporary directory
+        import shutil
+        shutil.rmtree(temp_dir)
+
+
+        '''
+        tar = bz2.open(tar_file_name)
+
         tar = tarfile.open(tar_file_name)
         _prefix = f'mnt/kodashare/KoDa_NiFi_data/{company}/{feed}/{data_date.year}/' \
                   f'{str(data_date.month).zfill(2)}/{str(data_date.day).zfill(2)}/{str(hour).zfill(2)}/'
@@ -227,6 +276,7 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
             delayed(_parse_gtfs)(tar.extractfile(gtfsfile).read()) for gtfsfile in gzfiles)
         tar.close()
         merged_df = pd.concat(parsed_files)
+        '''
 
         # Force casts:
         castings = dict()
