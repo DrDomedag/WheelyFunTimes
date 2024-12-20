@@ -3,6 +3,12 @@ import appdirs
 import os
 import configparser
 
+import pandas as pd
+
+pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
+
 
 default_config = {
     'api_key': '',
@@ -37,37 +43,85 @@ hour = 12
 start_hour = 15
 end_hour = 15
 
-df = pk.datautils.get_data_range(feed='TripUpdates', company=company, start_date=date, start_hour=start_hour, end_hour=end_hour, merge_static=True)
 
-df.info()
+trip_update_df = pk.datautils.get_data_range(feed='TripUpdates', company=company, start_date=date, start_hour=start_hour, end_hour=end_hour, merge_static=True)
 
-import pandas as pd
+trip_update_df = trip_update_df[["datetime", "trip_id", "stop_id", "scheduled_departure_time", "departure_delay"]]
+trip_update_df = trip_update_df.sort_values(["trip_id", "datetime"])
+trip_update_df['actual_departure_time'] = trip_update_df['scheduled_departure_time'] + pd.to_timedelta(trip_update_df['departure_delay'], unit='s')
+trip_update_df = trip_update_df.sort_values(['scheduled_departure_time', 'datetime'])
 
-pd.set_option('display.max_rows', 500)
-pd.set_option('display.max_columns', 500)
-pd.set_option('display.width', 1000)
-
-df1 = df[["id", "datetime", "trip_id", "route_short_name", "stop_id", "stop_name", "scheduled_departure_time", "departure_delay"]]
-df1.sort_values(["trip_id", "datetime"])
-#print(df.head(20))
+#print(trip_update_df.head(20))
 
 #df = df.loc[df['trip_id'] == "121120000307023823"]
 #print(df.head(20))
 
 
 
-df2 = pk.datautils.get_data_range(feed='VehiclePositions', company=company, start_date=date, start_hour=start_hour, end_hour=end_hour, merge_static=True)
-df2 = df2[["id", "trip_id", "vehicle_id", "datetime", "route_short_name", "vehicle_occupancyStatus"]]
-df2.sort_values(["trip_id", "datetime"])
+vehicle_position_df = pk.datautils.get_data_range(feed='VehiclePositions', company=company, start_date=date, start_hour=start_hour, end_hour=end_hour, merge_static=True)
 
-unique_ids = list(df2["trip_id"].unique())
+vehicle_position_df.info()
 
-final_df = pd.DataFrame()
+#df2 = df2[["id", "trip_id", "datetime", "route_short_name", "vehicle_occupancyStatus", "direction_id", "stop_sequence", "stop_id"]]
+vehicle_position_df = vehicle_position_df[["id", "trip_id", "datetime", "vehicle_position_latitude", "vehicle_position_longitude", "route_short_name", "vehicle_occupancyStatus", "direction_id"]]
+vehicle_position_df = vehicle_position_df.sort_values(["trip_id", "datetime"])
 
-import random
-random.shuffle(unique_ids)
+#print(vehicle_position_df.head(10))
 
-for unique_id in unique_ids:
+# Convert `datetime` column to datetime if it's not already
+vehicle_position_df['datetime'] = pd.to_datetime(vehicle_position_df['datetime'])
+vehicle_position_df['datetime_floor'] = vehicle_position_df['datetime'].dt.floor('T')
+
+vehicle_position_df = (
+    vehicle_position_df.groupby(['trip_id', 'datetime_floor'])
+    .first()
+    .reset_index()
+    .rename_axis(columns=None)
+)
+
+vehicle_position_df = vehicle_position_df.drop("datetime_floor", axis=1)
+
+vehicle_position_df = vehicle_position_df.sort_values("datetime")
+
+print(vehicle_position_df.head(10))
+
+unique_trip_ids = list(vehicle_position_df["trip_id"].unique())
+
+'''
+final_columns = ["id", "trip_id", "datetime", "vehicle_position_latitude", "vehicle_position_longitude", "route_short_name", "vehicle_occupancyStatus", "direction_id", "stop_id", "scheduled_departure_time", "departure_delay"]
+
+final_df = pd.DataFrame(columns=final_columns)
+
+#import random
+#random.shuffle(unique_trip_ids)
+
+for unique_id in unique_trip_ids:
+    trip_df = trip_update_df.loc[trip_update_df['trip_id'] == unique_id]
+    vpos_df = vehicle_position_df.loc[vehicle_position_df['trip_id'] == unique_id]
+
+    df_to_merge = pd.DataFrame(columns=final_columns)
+    if trip_df.shape[0] < 1:
+        print(f"No trip_df data found for trip id {unique_id}")
+    else:
+        df_to_merge = pd.merge_asof(
+            vpos_df.sort_values('datetime'),  # Sort vpos_df by timestamp
+            trip_df,
+            left_on='datetime',
+            right_on='scheduled_departure_time',
+            direction='backward'  # Find closest preceding value
+        )
+    print(df_to_merge.head(10))
+    #df_to_merge = pd.concat([df_to_merge, merged_df], ignore_index=True)
+    final_df = pd.concat([final_df, df_to_merge], ignore_index=True)
+
+final_df.info()
+print(final_df.head(10))
+'''
+
+
+
+'''
+for unique_id in unique_trip_ids:
 
     first = unique_id
     #print(first)
@@ -119,7 +173,7 @@ for unique_id in unique_ids:
 
 final_df.info()
 print(final_df.head())
-
+'''
 
 '''
 print("-----------")
