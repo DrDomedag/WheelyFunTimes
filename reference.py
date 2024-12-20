@@ -1,4 +1,6 @@
 import datetime
+
+import hsfs
 import requests
 import pandas as pd
 import hopsworks
@@ -9,20 +11,17 @@ import json
 import re
 import os
 import warnings
+
+from geopy import Nominatim
+
 warnings.filterwarnings("ignore")
+
 import openmeteo_requests
 import requests_cache
 from retry_requests import retry
 
 
-"""
-# If you haven't set the env variable 'HOPSWORKS_API_KEY', then uncomment the next line and enter your API key
-# os.environ["HOPSWORKS_API_KEY"] = ""
-with open('../../data/hopsworks-api-key.txt', 'r') as file:
-    os.environ["HOPSWORKS_API_KEY"] = file.read().rstrip()
-proj = hopsworks.login()
-util.purge_project(proj)
-"""
+
 
 def get_historical_weather(city, start_date,  end_date, latitude, longitude):
     # latitude, longitude = get_city_coordinates(city)
@@ -214,11 +213,7 @@ def check_file_path(file_path):
         print(f"File successfully found at the path: {file_path}")
 
 
-#Bestäm var vi vill lagra key
-with open('../../data/hopsworks-api-key.txt', 'r') as file:
-    os.environ["HOPSWORKS_API_KEY"] = file.read().rstrip()
-    
-project = hopsworks.login()
+
 
 
 #Lite att fixa 
@@ -285,4 +280,4 @@ weather_fg.update_feature_description("city", "City where weather is measured/fo
 weather_fg.update_feature_description("temperature_2m_mean", "Temperature in Celsius")
 weather_fg.update_feature_description("precipitation_sum", "Precipitation (rain/snow) in mm")
 weather_fg.update_feature_description("wind_speed_10m_max", "Wind speed at 10m abouve ground")
-weather_fg.update_feature_description("wind_direction_10m_dominant", "Dominant Wind direction over the dayd")
+weather_fg.update_feature_description("wind_direction_10m_dominant", "Dominant Wind direction over the day")

@@ -1,5 +1,7 @@
 appdirs
 requests
+requests-cache==1.2.0
+retry-requests==2.0.0
 ey>=0.3.0,!=0.3.1
 numpy
 pandas
@@ -8,9 +10,10 @@ scipy
 cartopy
 geopandas
 matplotlib
-protobuf==3.10.0
+protobuf
 tqdm
 joblib
 geopy~=2.0.0
 networkx
 py7zr
+hopsworks
