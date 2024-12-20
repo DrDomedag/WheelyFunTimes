@@ -10,6 +10,9 @@ import re
 import os
 import warnings
 warnings.filterwarnings("ignore")
+import openmeteo_requests
+import requests_cache
+from retry_requests import retry
 
 
 """
