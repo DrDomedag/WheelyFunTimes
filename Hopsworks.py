@@ -211,29 +211,14 @@ def check_file_path(file_path):
         print(f"File successfully found at the path: {file_path}")
 
 
-#För aqi - vi vill bara ha väder
-"""aqi_api_key_file = '../../data/aqi-api-key.txt'
-util.check_file_path(aqi_api_key_file)
-
-with open(aqi_api_key_file, 'r') as file:
-    AQI_API_KEY = file.read().rstrip()"""
-
+#Bestäm var vi vill lagra key
 with open('../../data/hopsworks-api-key.txt', 'r') as file:
     os.environ["HOPSWORKS_API_KEY"] = file.read().rstrip()
     
 project = hopsworks.login()
 
-secrets = secrets_api(project.name)
-"""try:
-    secrets.create_secret("AQI_API_KEY", AQI_API_KEY)
-except hopsworks.RestAPIError:
-    AQI_API_KEY = secrets.get_secret("AQI_API_KEY").value"""
 
-
-earliest_aq_date = pd.Series.min(df_aq['date'])
-earliest_aq_date = earliest_aq_date.strftime('%Y-%m-%d')
-earliest_aq_date
-#Lite att fixa
+#Lite att fixa 
 weather_df = get_historical_weather(city, earliest_aq_date, str(today), latitude, longitude)
 weather_df.info()
 
