@@ -3,7 +3,7 @@ import requests
 
 URL_BASE = "http://sholiday.faboul.se/dagar/v2.1"
 
-def get_JSON_for_date(year, month=None, day=None):
+def get_calendar_data(year, month=None, day=None):
     if month is None:
         url = f"{URL_BASE}/{year}"
     elif day is None:
@@ -16,8 +16,27 @@ def get_JSON_for_date(year, month=None, day=None):
     # Step 2: Parse the JSON content
     json_data = response.json()["dagar"]
 
+    df = pd.DataFrame(json_data)
 
-    return json_data
+
+    final_columns = ['datum', 'dag i vecka', 'arbetsfri dag', 'röd dag', 'helgdag', 'klämdag', 'helgdagsafton', 'dag före arbetsfri helgdag']
+    for column in final_columns:
+        if column not in df.columns:
+            df[column] = None
+
+    columns_to_transform = ['helgdag', 'klämdag', 'helgdagsafton', 'dag före arbetsfri helgdag']
+
+    # Apply the transformation to the specified columns
+    df[columns_to_transform] = df[columns_to_transform].notna().astype(int)
+
+
+    df['arbetsfri dag'] = df['arbetsfri dag'].map({'Ja': 1, 'Nej': 0})
+    df['röd dag'] = df['röd dag'].map({'Ja': 1, 'Nej': 0})
+
+
+    df = df[final_columns]
+
+    return df
 
 
 
@@ -29,9 +48,7 @@ year = "2015"
 month = "01"
 day = "06"
 
-json_data = get_JSON_for_date(year, month)
+df = get_calendar_data(year, month, day)
 
-df = pd.DataFrame(json_data)
-
-df.info()
-print(df.head(10))
+#df.info()
+#print(df.head(10))
