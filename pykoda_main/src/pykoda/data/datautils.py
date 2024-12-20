@@ -107,7 +107,8 @@ def get_data_range(feed: str, company: str, start_date: str, start_hour: int = 0
             else:
                 df = pd.DataFrame()
 
-
+        print(f"merge_static {merge_static}")
+        print(df.head())
         if merge_static and not df.empty:
             this_static = load_static_data(company, date, remove_unused_stations=True)
             if this_static is None:
@@ -145,7 +146,8 @@ def get_data_range(feed: str, company: str, start_date: str, start_hour: int = 0
         # Drop the index, since it will be regenerated when concatenated
         df.drop(columns='index', errors='ignore', inplace=True)
         frames.append(df)
-
+        print(df.head())
+    print(frames)
     df_merged = pd.concat(frames)
     if 'timestamp' in df_merged.keys():
         df_merged['datetime'] = pd.to_datetime(df_merged.timestamp, unit='s')
