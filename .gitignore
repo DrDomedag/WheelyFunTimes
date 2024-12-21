@@ -1,4 +1,4 @@
 /HOPSWORKS_API_KEY.txt
 /.cache.sqlite
 /.idea/*
-/__pychache/*
+/__pychache__/*
