@@ -60,19 +60,51 @@ hour = 12
 start_hour = 15
 end_hour = 15
 
-#df = vehicle_data.get_vehicle_position_data(company, date, start_hour, end_hour)
-#df.info()
+#vehicle_df = vehicle_data.get_vehicle_position_data(company, date, start_hour, end_hour)
+#vehicle_df.info()
+#print(vehicle_df.head(10))
 
-#date_df = get_calendar_data(year, month, day)
-#date_df.info()
+date_df = get_calendar_data(year, month, day)
+date_df.info()
+print(date_df.head(10))
 
 
-#project = hopsworks.login(project="id2223AirQuality")
 
-#fs = project.get_feature_store()
+project = hopsworks.login(project="id2223AirQuality")
+
+fs = project.get_feature_store()
 #mr = project.get_model_registry()
 
+#Vi ska ändra namnen sen:)
+print(date_df.columns)
+date_df = date_df.rename(columns ={"röd dag":"red_day", "klämdag":"squeeze_day", "dag före arbetsfri helgdag":"day_before_work_free_holiday"})
+
+date_df["datum"] = pd.to_datetime(date_df['datum'])
+
+date_fg = fs.get_or_create_feature_group(
+    name='date',
+    description='Information about Swedish holidays',
+    version=1,
+    primary_key=['datum'],
+    event_time="datum",
+    #expectation_suite=weather_expectation_suite
+)
+
+date_fg.insert(date_df)
+
 historical_weather_data_df = weather_data.get_historical_weather(city, date, date, latitude, longitude)
+
+#Borde vara hyffsat lik, men ska uppdateras
+weather_fg = fs.get_or_create_feature_group(
+    name='weather',
+    description='Weather characteristics of each day',
+    version=1,
+    primary_key=['date'],
+    event_time="date",
+    #expectation_suite=weather_expectation_suite
+)
+
+weather_fg.insert(historical_weather_data_df)
 
 #historical_weather_data_df.info()
 print(historical_weather_data_df.head())
