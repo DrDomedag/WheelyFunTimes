@@ -8,6 +8,7 @@ from datetime import timedelta, datetime
 from dateutil.relativedelta import relativedelta
 import pandas as pd
 import pykoda_main.src.pykoda as pk
+import get_static_custom
 
 
 
@@ -66,17 +67,31 @@ def get_dates():
 
 def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
     date = datetime.now()
-    date = date - timedelta(days=1)
+    date = date + timedelta(days=1)
     year = date.year
     month = date.month
     day = date.day
 
     date_string = f"{year}-{month}-{day}"
     company = "skane"
-    data = pk.datautils.load_static_data(company, date_string, remove_unused_stations=True)
+    data = get_static_custom.load_static_data(company, date_string, remove_unused_stations=True)
     stop_df = data.stop_times
     stop_df.info()
+    stop_df = stop_df.drop(["arrival_time", "stop_headsign", "pickup_type", "drop_off_type", "shape_dist_traveled", "location_type", "parent_station", "platform_code"], axis=1)
+    stop_df.info()
+    stop_df = stop_df.sort_values(["trip_id", "departure_time"])
     print(stop_df.head(14))
+    trip_df = data.trips
+    trip_df.info()
+    trip_df = trip_df.drop(["trip_headsign", "service_id", "shape_id", "agency_id", "route_long_name", "route_type", "route_desc"], axis=1)
+    print("trips")
+    trip_df.info()
+
+    merged_df = trip_df.merge(stop_df, how="left", on="trip_id")
+    merged_df.info()
+
+
+
 
 get_vehicle()
     

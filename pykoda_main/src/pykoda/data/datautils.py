@@ -176,10 +176,12 @@ def load_static_data(company: str, date: str, remove_unused_stations: bool = Fal
         try:
             getstatic.get_static_data(company=company, date=date)
         except ValueError:
+            print("FEL HÄR")
             warnings.warn(RuntimeWarning(f'Missing static data for {company} at {date}'))
             return
 
     if not os.path.exists(os.path.join(output_folder, 'stop_times.txt')):
+        print("HÄR")
         warnings.warn(RuntimeWarning(f'Missing static data for {company} at {date}'))
         return
 
