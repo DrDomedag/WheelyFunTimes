@@ -20,3 +20,4 @@ twofish
 hopsworks
 confluent-kafka
 python-magic
+openmeteo_requests
