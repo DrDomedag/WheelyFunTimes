@@ -16,4 +16,6 @@ joblib
 geopy~=2.0.0
 networkx
 py7zr
+twofish
 hopsworks
+confluent-kafka

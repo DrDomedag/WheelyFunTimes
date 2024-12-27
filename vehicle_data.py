@@ -23,6 +23,8 @@ def get_vehicle_position_data(company, date, start_hour, end_hour):
         .rename_axis(columns=None)
     )
 
+    vehicle_position_df = vehicle_position_df.rename(columns={"vehicle_occupancyStatus": "vehicle_occupancy_status"})
+
     vehicle_position_df = vehicle_position_df.drop("datetime_floor", axis=1)
 
     vehicle_position_df = vehicle_position_df.sort_values("datetime")

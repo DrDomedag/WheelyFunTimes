@@ -100,7 +100,7 @@ def get_hourly_weather_forecast(city, latitude, longitude):
 
     hourly_data["temperature_2m"] = hourly_temperature_2m
     hourly_data["precipitation"] = hourly_precipitation
-    hourly_data["cloud_cover"] = hourly_cloud_cover
+    hourly_data["hourly_cloud_cover"] = hourly_cloud_cover
     hourly_data["wind_speed_10m"] = hourly_wind_speed_10m
 
 
