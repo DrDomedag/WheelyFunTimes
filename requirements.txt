@@ -19,3 +19,4 @@ py7zr
 twofish
 hopsworks
 confluent-kafka
+python-magic
