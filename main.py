@@ -2,13 +2,15 @@ import os
 
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = "python"
 
-import backfill
 import appdirs
 import configparser
 import pandas as pd
 import hopsworks
+from datetime import datetime, timedelta
 
 import util
+import backfill
+import training
 
 
 
@@ -50,13 +52,22 @@ API_KEY = config_data.get('api_key', '')
 project = hopsworks.login(project="id2223AirQuality")
 
 fs = project.get_feature_store()
-#mr = project.get_model_registry()
+mr = project.get_model_registry()
 
 
 # UNCOMMENT TO REMOVE **EVERYTHING**
 #util.purge_project(project)
 
 
-backfill.backfill(fs)
+#backfill.backfill(fs)
+
+date = datetime.now()
+date = date - timedelta(days=1)
+year = date.year
+month = date.month
+day = date.day
+train_test_data_split_time = f"{year}-{month}-{day}"
+
+training.train(fs, mr, train_test_data_split_time)
 
 

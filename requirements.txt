@@ -21,3 +21,5 @@ hopsworks
 confluent-kafka
 python-magic
 openmeteo_requests
+xgboost
+sklearn
