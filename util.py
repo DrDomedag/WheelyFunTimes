@@ -71,5 +71,5 @@ def check_file_path(file_path):
 with open('HOPSWORKS_API_KEY.txt', 'r') as file:
     os.environ["HOPSWORKS_API_KEY"] = file.read().rstrip()
 
-project = hopsworks.login(project="id2223AirQuality")
-purge_project(project)
+#project = hopsworks.login(project="id2223AirQuality")
+#purge_project(project)
