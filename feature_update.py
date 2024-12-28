@@ -13,8 +13,14 @@ import hopsworks
 import vehicle_data
 
 
-def get_weather_forecast(fs, city, latitude, longitude):
+def get_weather_forecast():
+    city = "Malmö"
+    latitude = 55.3535
+    longitude = 13.0117
+
     weather_data_forecast_df = weather_data.get_hourly_weather_forecast(city, latitude, longitude)
+
+    weather_data_forecast_df = weather_data_forecast_df.rename(columns={"date":"datetime"})
 
     weather_fg = fs.get_feature_group(
     name='weather',
@@ -44,9 +50,9 @@ def get_dates():
     date_df = pd.concat([date_df, get_calendar_data(next_year, next_month)], ignore_index=True)
 
     date_df = date_df.rename(
-        columns={"röd dag": "holiday", "klämdag": "squeeze_day", "dag före arbetsfri helgdag": "day_before_holiday"})
+        columns={"röd dag": "holiday", "klämdag": "squeeze_day", "dag före arbetsfri helgdag": "day_before_holiday", "datum":"datetime"})
 
-    date_df["datum"] = pd.to_datetime(date_df['datum'])
+    date_df["datetime"] = pd.to_datetime(date_df['datetime'])
 
     date_df.info()
     #print(date_df.head(45))
@@ -128,6 +134,8 @@ def update_historical_weather():
     
     weather_df = weather_data.get_historical_weather(city, date, date, latitude, longitude)
 
+    weather_df = weather_df.rename(columns={"date":"datetime"})
+
     weather_fg = fs.get_feature_group(
         name='weather',
         version=1,
@@ -167,13 +175,15 @@ fs = project.get_feature_store()
 #get_weather_forecast
 #get_dates()
 def update_historical():
-    update_historical_vehicle()
     update_historical_weather()
+    update_historical_vehicle()
+    
 
 def get_future():
-    get_vehicle()
+    
     get_dates()
     get_weather_forecast()
+    get_vehicle()
 
 update_historical()
 get_future()
