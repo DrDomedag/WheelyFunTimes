@@ -148,7 +148,7 @@ def load_static_data(company: str, date: str, remove_unused_stations: bool = Fal
                               parse_dates=['arrival_time', 'departure_time'], date_parser=parse_date)
     stops_data = pd.read_csv(os.path.join(output_folder, 'stops.txt'),
                              dtype={'stop_id': 'str', 'parent_station': 'str'})
-    trips_data = pd.read_csv(os.path.join(output_folder, 'trips.txt'), dtype={'trip_id': 'str', 'route_id': 'str', "direction_id": "int"})
+    trips_data = pd.read_csv(os.path.join(output_folder, 'trips.txt'), dtype={'trip_id': 'str', 'route_id': 'str', "direction_id": "int64"})
     shapes_data = pd.read_csv(os.path.join(output_folder, 'shapes.txt'))
     routes = pd.read_csv(os.path.join(output_folder, 'routes.txt'), dtype={'route_id': 'str', 'agency_id': 'str',
                                                                            'route_short_name': 'str',

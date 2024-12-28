@@ -9,25 +9,22 @@ from dateutil.relativedelta import relativedelta
 import pandas as pd
 import pykoda_main.src.pykoda as pk
 import get_static_custom
-
+import hopsworks
+import vehicle_data
 
 
 def get_weather_forecast(fs, city, latitude, longitude):
     weather_data_forecast_df = weather_data.get_hourly_weather_forecast(city, latitude, longitude)
 
-    """ weather_fg = fs.get_or_create_feature_group(
-        name='weather',
-        description='Weather characteristics of each hour',
-        version=1,
-        primary_key=['date'],
-        event_time="date",
-        # expectation_suite=weather_expectation_suite
-    )"""
+    weather_fg = fs.get_feature_group(
+    name='weather',
+    version=1,
+    )
 
     # weather_data_forecast_df.info()
     # print(weather_data_forecast_df.head())
 
-    """weather_fg.insert(weather_data_forecast_df)"""
+    weather_fg.insert(weather_data_forecast_df)
     # weather_data_forecast_df.info()
     # print(weather_data_forecast_df.head())
 
@@ -54,16 +51,12 @@ def get_dates():
     date_df.info()
     #print(date_df.head(45))
 
-    """date_fg = fs.get_or_create_feature_group(
+    # Retrieve feature groups
+    date_fg = fs.get_feature_group(
         name='date',
-        description='Information about Swedish holidays',
         version=1,
-        primary_key=['datum'],
-        event_time="datum",
-        # expectation_suite=weather_expectation_suite
     )
-
-    date_fg.insert(date_df)"""
+    date_fg.insert(date_df)
 
 def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
     date = datetime.now()
@@ -83,15 +76,93 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
     print(stop_df.head(14))
     trip_df = data.trips
     trip_df.info()
+    stop_pos_df = stop_df[["stop_name", "stop_lat", "stop_lon"]]
+    stop_pos_df = stop_pos_df.drop_duplicates()
+
     trip_df = trip_df.drop(["trip_headsign", "service_id", "shape_id", "agency_id", "route_long_name", "route_type", "route_desc"], axis=1)
     print("trips")
     trip_df.info()
 
     merged_df = trip_df.merge(stop_df, how="left", on="trip_id")
+    merged_df.reset_index()
+    merged_df["trip_id"] = merged_df.index
+    merged_df = merged_df.drop(["stop_name", "timepoint"], axis=1)
+    #merged_df['datetime'] = pd.to_datetime(merged_df['timestamp'])
+    
+    merged_df = merged_df.rename(columns={"stop_lat":"vehicle_position_latitude", "stop_lon":"vehicle_position_longitude", "departure_time":"datetime"})
+
+    #Lägg till tom komun med occupancy status
+    merged_df["vehicle_occupancy_status"] = ""
+    merged_df["id"] = None
+
     merged_df.info()
 
+    # Retrieve feature groups
+    vehicle_fg = fs.get_feature_group(
+        name='vehicle',
+        version=1,
+    )
+    vehicle_fg.insert(merged_df)
+
+    stop_fg = fs.get_or_create_feature_group(
+        name='stops',
+        description='Positions for all stops',
+        version=1,
+        primary_key=['stop_lat', "stop_lon"],
+        # expectation_suite=weather_expectation_suite
+    )
+
+    stop_fg.insert(stop_pos_df)
+
+def update_historical_weather():
+    # Get air quality feature group
+    weather_fg = fs.get_feature_group(
+        name='weather',
+        version=1,
+    )
+    #get data for today
+    
+
+def update_historical_vehicle():
+    #Titta på dagens datum
+    #Plocka data från koda från igår
+    company = "skane"
+    now = datetime.now()
+    yesterday = now - timedelta(days = 1)
+    day = yesterday.day
+    month = yesterday.month
+    year = yesterday.year
+
+    yesterday_string = f"{year}-{month}-{day}"
+
+    vehicle_df = vehicle_data.get_vehicle_position_data(company, yesterday, "0", "23")
+
+    vehicle_fg = fs.get_feature_group(
+    name='vehicle',
+    version=1,
+    )
+    vehicle_fg.insert(vehicle_df)    
 
 
+
+
+
+
+
+
+
+with open('HOPSWORKS_API_KEY.txt', 'r') as file:
+    os.environ["HOPSWORKS_API_KEY"] = file.read().rstrip()
+
+project = hopsworks.login(project="id2223AirQuality")
+fs = project.get_feature_store()
+
+#get_weather_forecast
+#get_dates()
+def update_historical():
+    update_historical_vehicle()
+    update_historical_weather()
 
 get_vehicle()
+
     
