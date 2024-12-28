@@ -8,6 +8,7 @@ import configparser
 import pandas as pd
 import hopsworks
 
+import util
 
 
 
@@ -50,6 +51,11 @@ project = hopsworks.login(project="id2223AirQuality")
 
 fs = project.get_feature_store()
 #mr = project.get_model_registry()
+
+
+# UNCOMMENT TO REMOVE **EVERYTHING**
+#util.purge_project(project)
+
 
 backfill.backfill(fs)
 
