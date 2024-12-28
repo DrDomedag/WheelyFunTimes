@@ -91,16 +91,16 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
     
     merged_df = merged_df.rename(columns={"stop_lat":"vehicle_position_latitude", "stop_lon":"vehicle_position_longitude", "departure_time":"datetime"})
 
-    #Lägg till tom komun med occupancy status
-    merged_df["vehicle_occupancy_status"] = ""
-    merged_df["id"] = None
-
     merged_df.info()
 
     # Retrieve feature groups
-    vehicle_fg = fs.get_feature_group(
-        name='vehicle',
+    vehicle_fg = fs.get_or_create_feature_group(
+        name='vehicle_future',
+        description='Future data on vehicle routes',
         version=1,
+        primary_key=['trip_id', "datetime"],
+        event_time="datetime",
+        # expectation_suite=weather_expectation_suite
     )
     vehicle_fg.insert(merged_df)
 
@@ -116,11 +116,24 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
 
 def update_historical_weather():
     # Get air quality feature group
+    yesterday = datetime.now() - timedelta(days=1)
+    year = yesterday.year
+    month = yesterday.month
+    day = yesterday.day
+    date = f"{year}-{month}-{day}"
+
+    city = "Malmö"
+    latitude = 55.3535
+    longitude = 13.0117
+    
+    weather_df = weather_data.get_historical_weather(city, date, date, latitude, longitude)
+
     weather_fg = fs.get_feature_group(
         name='weather',
         version=1,
     )
-    #get data for today
+    
+    weather_fg.insert(weather_df)
     
 
 def update_historical_vehicle():
@@ -135,19 +148,13 @@ def update_historical_vehicle():
 
     yesterday_string = f"{year}-{month}-{day}"
 
-    vehicle_df = vehicle_data.get_vehicle_position_data(company, yesterday, "0", "23")
+    vehicle_df = vehicle_data.get_vehicle_position_data(company, yesterday_string, 0, 23)
 
     vehicle_fg = fs.get_feature_group(
     name='vehicle',
     version=1,
     )
     vehicle_fg.insert(vehicle_df)    
-
-
-
-
-
-
 
 
 
@@ -163,6 +170,12 @@ def update_historical():
     update_historical_vehicle()
     update_historical_weather()
 
-get_vehicle()
+def get_future():
+    get_vehicle()
+    get_dates()
+    get_weather_forecast()
+
+update_historical()
+get_future()
 
     
