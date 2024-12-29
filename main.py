@@ -8,9 +8,13 @@ import pandas as pd
 import hopsworks
 from datetime import datetime, timedelta
 
-import util
-import backfill
+"""import util
+import backfill"""
 import training
+import feature_update
+import inference
+
+
 
 
 
@@ -58,9 +62,6 @@ mr = project.get_model_registry()
 # UNCOMMENT TO REMOVE **EVERYTHING**
 #util.purge_project(project)
 
-
-backfill.backfill(fs)
-
 date = datetime.now()
 date = date - timedelta(days=4)
 year = date.year
@@ -68,6 +69,17 @@ month = date.month
 day = date.day
 train_test_data_split_time = f"{year}-{month}-{day}"
 
+"""Backfill pipeline"""
+#backfill.backfill(fs)
+
+"""Feature pipeline"""
+#feature_update.update_historical()
+#feature_update.get_future()
+
+"""Training pipeline"""
 #training.train(fs, mr, train_test_data_split_time)
+
+"""Inference pipeline"""
+inference.inference(fs, mr)
 
 

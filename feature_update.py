@@ -82,8 +82,8 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
     print(stop_df.head(14))
     trip_df = data.trips
     trip_df.info()
-    stop_pos_df = stop_df[["stop_name", "stop_lat", "stop_lon"]]
-    stop_pos_df = stop_pos_df.drop_duplicates()
+    """stop_pos_df = stop_df[["stop_name", "stop_lat", "stop_lon"]]
+    stop_pos_df = stop_pos_df.drop_duplicates()"""
 
     trip_df = trip_df.drop(["trip_headsign", "service_id", "shape_id", "agency_id", "route_long_name", "route_type", "route_desc"], axis=1)
     print("trips")
@@ -110,7 +110,7 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
     )
     vehicle_fg.insert(merged_df)
 
-    stop_fg = fs.get_or_create_feature_group(
+    """stop_fg = fs.get_or_create_feature_group(
         name='stops',
         description='Positions for all stops',
         version=1,
@@ -118,11 +118,11 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
         # expectation_suite=weather_expectation_suite
     )
 
-    stop_fg.insert(stop_pos_df)
+    stop_fg.insert(stop_pos_df)"""
 
 def update_historical_weather():
     # Get air quality feature group
-    yesterday = datetime.now() - timedelta(days=1)
+    yesterday = datetime.now() - timedelta(days=2)
     year = yesterday.year
     month = yesterday.month
     day = yesterday.day
@@ -149,7 +149,7 @@ def update_historical_vehicle():
     #Plocka data från koda från igår
     company = "skane"
     now = datetime.now()
-    yesterday = now - timedelta(days = 1)
+    yesterday = now - timedelta(days = 2)
     day = yesterday.day
     month = yesterday.month
     year = yesterday.year
@@ -175,7 +175,7 @@ fs = project.get_feature_store()
 #get_weather_forecast
 #get_dates()
 def update_historical():
-    update_historical_weather()
+    #update_historical_weather()
     update_historical_vehicle()
     
 
@@ -185,7 +185,7 @@ def get_future():
     get_weather_forecast()
     get_vehicle()
 
-update_historical()
-get_future()
+"""update_historical()
+get_future()"""
 
     

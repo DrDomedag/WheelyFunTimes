@@ -108,10 +108,12 @@ def get_data_range(feed: str, company: str, start_date: str, start_hour: int = 0
                 df = pd.DataFrame()
 
         print(f"merge_static {merge_static}")
+        print(f"df.empty {df.empty}")
         print(df.head())
         if merge_static and not df.empty:
             this_static = load_static_data(company, date, remove_unused_stations=True)
             if this_static is None:
+                print(f"this_static {this_static}")
                 continue
 
             if feed == 'TripUpdates':
@@ -146,6 +148,8 @@ def get_data_range(feed: str, company: str, start_date: str, start_hour: int = 0
         # Drop the index, since it will be regenerated when concatenated
         df.drop(columns='index', errors='ignore', inplace=True)
         frames.append(df)
+        print("------------")
+        print("efter append")
         print(df.head())
     print(frames)
     df_merged = pd.concat(frames)

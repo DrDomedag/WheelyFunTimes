@@ -11,7 +11,7 @@ def get_data(fs):
         version=1,
     )
     today = datetime.datetime.now() - datetime.timedelta(0)
-    batch_data = weather_fg.filter(weather_fg.date >= today).read()
+    batch_data = weather_fg.filter(weather_fg.datetime >= today).read()
 
     date_fg = fs.get_feature_group(
         name="date",
@@ -23,7 +23,7 @@ def get_data(fs):
         version=1,
     )
 
-    weather_df = batch_data.read()
+    weather_df = batch_data
     date_df = date_fg.read()
 
     weather_df = weather_df.sort_values('datetime')
@@ -42,6 +42,8 @@ def get_data(fs):
     vehicle_df = vehicle_fg.read()
     vehicle_df = vehicle_df.sort_values("datetime")
     vehicle_df["datetime"] = pd.to_datetime(vehicle_df["datetime"])
+
+    
 
     triplicate_df = pd.merge_asof(
         vehicle_df,
@@ -67,6 +69,10 @@ def inference(fs, mr):
 
     pred_features = pred_df.drop(["trip_id", "datetime"], axis=1)
 
+    pred_features.info()
+    
+    pred_features = pred_features[['vehicle_position_latitude', 'vehicle_position_longitude', 'route_short_name', 'direction_id', 'temperature_2m', 'precipitation', 'wind_speed_10m', 'hourly_cloud_cover', 'dag_i_vecka', 'arbetsfri_dag', 'holiday', 'helgdag', 'squeeze_day', 'helgdagsafton', 'day_before_holiday', 'hour', 'minute']]
+
     retrieved_model = mr.get_model(
         name="bus_occupancy_xgboost_model",
         version=1,
@@ -77,7 +83,7 @@ def inference(fs, mr):
 
     # Loading the XGBoost regressor model and label encoder from the saved model directory
     # retrieved_xgboost_model = joblib.load(saved_model_dir + "/xgboost_regressor.pkl")
-    retrieved_xgboost_model = XGBClassifier()
+    retrieved_xgboost_model = XGBClassifier(tree_method="hist", enable_categorical=True)
 
     retrieved_xgboost_model.load_model(saved_model_dir + "/model.json")
 
