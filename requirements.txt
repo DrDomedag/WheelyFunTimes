@@ -22,4 +22,4 @@ confluent-kafka
 python-magic
 openmeteo_requests
 xgboost
-sklearn
+scikit-learn==1.5.2

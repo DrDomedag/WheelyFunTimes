@@ -59,19 +59,30 @@ def get_data(fs):
     return triplicate_df
         
 
+def upload_result_to_hopsworks(fs, df):
+    predictions_fg = fs.get_or_create_feature_group(
+        name='predictions',
+        description='Predicted occupancy',
+        version=1,
+        primary_key=['datetime', 'trip_id'],
+        event_time="datetime",
+        # expectation_suite=weather_expectation_suite
+    )
+
+    predictions_fg.insert(df)
+
+
 def inference(fs, mr):
     pred_df = get_data(fs)
 
     pred_df = pred_df.dropna()
 
     pred_df['dag_i_vecka'] = pred_df['dag_i_vecka'].astype('category')
-    pred_df['route_short_name'] = pred_df['route_short_name'].astype('category')
+    pred_df['route_long_name'] = pred_df['route_long_name'].astype('category')
 
     pred_features = pred_df.drop(["trip_id", "datetime"], axis=1)
-
-    pred_features.info()
     
-    pred_features = pred_features[['vehicle_position_latitude', 'vehicle_position_longitude', 'route_short_name', 'direction_id', 'temperature_2m', 'precipitation', 'wind_speed_10m', 'hourly_cloud_cover', 'dag_i_vecka', 'arbetsfri_dag', 'holiday', 'helgdag', 'squeeze_day', 'helgdagsafton', 'day_before_holiday', 'hour', 'minute']]
+    pred_features = pred_features[['vehicle_position_latitude', 'vehicle_position_longitude', 'route_long_name', 'direction_id', 'temperature_2m', 'precipitation', 'wind_speed_10m', 'hourly_cloud_cover', 'dag_i_vecka', 'arbetsfri_dag', 'holiday', 'helgdag', 'squeeze_day', 'helgdagsafton', 'day_before_holiday', 'hour', 'minute']]
 
     retrieved_model = mr.get_model(
         name="bus_occupancy_xgboost_model",
@@ -92,17 +103,13 @@ def inference(fs, mr):
 
     pred_labels = retrieved_xgboost_model.predict(pred_features)
 
+    result_df = pred_df
+    result_df["vehicle_occupancyStatus"] = pred_labels
+    result_df = result_df.sort_values(by=["datetime"])
 
-    #Se att det funkar
-    #Välja hur vi ska titta på det - per buss? 
-    #Spara till hopsworks
+    upload_result_to_hopsworks(fs, result_df)
+
+    return result_df
 
     
-
-
-
-
-
-
-
 

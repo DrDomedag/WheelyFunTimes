@@ -6,8 +6,9 @@ def get_vehicle_position_data(company, date, start_hour, end_hour):
 
     vehicle_position_df = pk.datautils.get_data_range(feed='VehiclePositions', company=company, start_date=date, start_hour=start_hour, end_hour=end_hour, merge_static=True)
 
-    #df2 = df2[["id", "trip_id", "datetime", "route_short_name", "vehicle_occupancyStatus", "direction_id", "stop_sequence", "stop_id"]]
-    vehicle_position_df = vehicle_position_df[["id", "trip_id", "datetime", "vehicle_position_latitude", "vehicle_position_longitude", "route_short_name", "vehicle_occupancyStatus", "direction_id"]]
+    #df2 = df2[["id", "trip_id", "datetime", "route_long_name", "vehicle_occupancyStatus", "direction_id", "stop_sequence", "stop_id"]]
+    vehicle_position_df = vehicle_position_df[["id", "trip_id", "datetime", "vehicle_position_latitude", "vehicle_position_longitude", "route_long_name", "vehicle_occupancyStatus", "direction_id"]]
+
     vehicle_position_df = vehicle_position_df.sort_values(["trip_id", "datetime"])
 
     #print(vehicle_position_df.head(10))
@@ -48,7 +49,7 @@ def get_unique_ids(dataframe):
 
 
 '''
-final_columns = ["id", "trip_id", "datetime", "vehicle_position_latitude", "vehicle_position_longitude", "route_short_name", "vehicle_occupancyStatus", "direction_id", "stop_id", "scheduled_departure_time", "departure_delay"]
+final_columns = ["id", "trip_id", "datetime", "vehicle_position_latitude", "vehicle_position_longitude", "route_long_name", "vehicle_occupancyStatus", "direction_id", "stop_id", "scheduled_departure_time", "departure_delay"]
 
 final_df = pd.DataFrame(columns=final_columns)
 
@@ -118,7 +119,7 @@ for unique_id in unique_trip_ids:
     merged_df = merged_df.query('id_y.notna()', engine='python')
     merged_df = merged_df.query('datetime_y.notna()', engine='python')
     merged_df = merged_df.query('trip_id_y.notna()', engine='python')
-    merged_df = merged_df.query('route_short_name_y.notna()', engine='python')
+    merged_df = merged_df.query('route_long_name_y.notna()', engine='python')
     merged_df = merged_df.query('stop_id.notna()', engine='python')
     merged_df = merged_df.query('stop_name.notna()', engine='python')
     merged_df = merged_df.query('scheduled_departure_time.notna()', engine='python')
@@ -158,7 +159,7 @@ print(filtered_df.head())
 
 '''
 df.info()
-df = df[["vehicle_id", "id", "datetime", "route_short_name", "vehicle_occupancyStatus"]]
+df = df[["vehicle_id", "id", "datetime", "route_long_name", "vehicle_occupancyStatus"]]
 df = df.loc[df['vehicle_id'] == "9031012002204027"]
 df = df[["vehicle_id", "id", "datetime", "vehicle_occupancyStatus"]]
 
@@ -167,7 +168,7 @@ print(df.head(20))
 
 
 '''
-unique_service_ids = list(df['route_short_name'].unique())
+unique_service_ids = list(df['route_long_name'].unique())
 print(len(unique_service_ids))
 print(unique_service_ids)
 
@@ -176,7 +177,7 @@ df = df.query('vehicle_occupancyStatus.notna()', engine='python')
 
 df.info()
 
-unique_service_ids_post = list(df['route_short_name'].unique())
+unique_service_ids_post = list(df['route_long_name'].unique())
 print(len(unique_service_ids_post))
 print(unique_service_ids_post)
 

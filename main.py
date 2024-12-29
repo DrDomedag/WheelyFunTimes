@@ -13,7 +13,7 @@ import backfill"""
 import training
 import feature_update
 import inference
-
+import visualisation
 
 
 
@@ -69,6 +69,8 @@ month = date.month
 day = date.day
 train_test_data_split_time = f"{year}-{month}-{day}"
 
+result_df = None
+
 """Backfill pipeline"""
 #backfill.backfill(fs)
 
@@ -77,9 +79,11 @@ train_test_data_split_time = f"{year}-{month}-{day}"
 #feature_update.get_future()
 
 """Training pipeline"""
-#training.train(fs, mr, train_test_data_split_time)
+#training.train(fs, mr, train_test_data_split_time, plot=False)
 
 """Inference pipeline"""
-inference.inference(fs, mr)
+#result_df = inference.inference(fs, mr)
 
+"""Visualisation pipeline"""
+visualisation.visualise(fs, result_df)
 

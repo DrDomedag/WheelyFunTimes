@@ -44,7 +44,7 @@ def train(fs, mr, train_test_data_split_time, plot=False):
 
 
     training_data['dag_i_vecka'] = training_data['dag_i_vecka'].astype('category')
-    training_data['route_short_name'] = training_data['route_short_name'].astype('category')
+    training_data['route_long_name'] = training_data['route_long_name'].astype('category')
 
     training_data['vehicle_occupancy_status'] = training_data['vehicle_occupancy_status'].astype('int')
     
