@@ -72,7 +72,7 @@ def backfill_vehicles(fs, date, start_hour, end_hour):
 def backfill(fs):
 
     date = datetime.now()
-    date = date - timedelta(days=2)
+    date = date - timedelta(days=4)
     year = date.year
     month = date.month
     day = date.day

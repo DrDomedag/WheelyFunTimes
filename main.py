@@ -59,15 +59,15 @@ mr = project.get_model_registry()
 #util.purge_project(project)
 
 
-#backfill.backfill(fs)
+backfill.backfill(fs)
 
 date = datetime.now()
-date = date - timedelta(days=1)
+date = date - timedelta(days=4)
 year = date.year
 month = date.month
 day = date.day
 train_test_data_split_time = f"{year}-{month}-{day}"
 
-training.train(fs, mr, train_test_data_split_time)
+#training.train(fs, mr, train_test_data_split_time)
 
 

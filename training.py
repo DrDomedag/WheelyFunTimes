@@ -16,12 +16,15 @@ import hopsworks
 import vehicle_data
 import numpy as np
 
+from hsml.schema import Schema
+from hsml.model_schema import ModelSchema
+
 from sklearn.metrics import mean_squared_error, r2_score
 from xgboost import XGBClassifier
 from xgboost import plot_importance
 import matplotlib.pyplot as plt
 
-def train(fs, mr, train_test_data_split_time):
+def train(fs, mr, train_test_data_split_time, plot=False):
     training_data = get_training_data(fs)
 
     training_data = training_data.dropna()
@@ -99,20 +102,51 @@ def train(fs, mr, train_test_data_split_time):
     print(result_df.tail())
     result_df.info()
 
-    plot_model(xgb_classifier)
-
-
-
-def save_model(xgb_regressor):
-    # Save model to Hopsworks
-    pass
-
-def plot_model(xgb_regressor):
-    
     # Creating a directory for the model artifacts if it doesn't exist
     model_dir = "occupancy_model"
     if not os.path.exists(model_dir):
         os.mkdir(model_dir)
+
+    if plot:
+        plot_model(xgb_classifier, model_dir)
+    
+    
+    # Save model to Hopsworks
+
+    # Creating input and output schemas using the 'Schema' class for features (X) and target variable (y)
+    input_schema = Schema(X_train)
+    output_schema = Schema(y_train)
+
+    # Creating a model schema using 'ModelSchema' with the input and output schemas
+    model_schema = ModelSchema(input_schema=input_schema, output_schema=output_schema)
+
+    # Converting the model schema to a dictionary representation
+    schema_dict = model_schema.to_dict()
+    # Saving the XGBoost regressor object as a json file in the model directory
+    model_dir = "/models/"
+    xgb_classifier.save_model(model_dir + "/model.json")
+    res_dict = { 
+            "MSE": str(mse),
+            "R squared": str(r2),
+        }
+    mr = project.get_model_registry()
+
+    # Creating a Python model in the model registry named 'air_quality_xgboost_model'
+
+    aq_model = mr.python.create_model(
+        name="air_quality_xgboost_model", 
+        metrics= res_dict,
+        model_schema=model_schema,
+        input_example=X_test.sample().values, 
+        description="Air Quality (PM2.5) predictor",
+    )
+
+    # Saving the model artifacts to the 'air_quality_model' directory in the model registry
+    aq_model.save(model_dir)
+
+def plot_model(xgb_regressor, model_dir):
+    
+    
     images_dir = model_dir + "/images"
     #images_dir = "images"
     if not os.path.exists(images_dir):
