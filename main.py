@@ -8,14 +8,12 @@ import pandas as pd
 import hopsworks
 from datetime import datetime, timedelta
 
-"""import util
-import backfill"""
 import training
 import feature_update
 import inference
 import visualisation
-
-
+import util
+import backfill
 
 
 pd.set_option('display.max_rows', 500)
@@ -59,8 +57,7 @@ fs = project.get_feature_store()
 mr = project.get_model_registry()
 
 
-# UNCOMMENT TO REMOVE **EVERYTHING**
-#util.purge_project(project)
+
 
 date = datetime.now()
 date = date - timedelta(days=4)
@@ -71,8 +68,12 @@ train_test_data_split_time = f"{year}-{month}-{day}"
 
 result_df = None
 
+"""Project purge"""
+# UNCOMMENT TO REMOVE **EVERYTHING**
+#util.purge_project(project)
+
 """Backfill pipeline"""
-#backfill.backfill(fs)
+backfill.backfill(fs)
 
 """Feature pipeline"""
 #feature_update.update_historical()
@@ -85,5 +86,5 @@ result_df = None
 #result_df = inference.inference(fs, mr)
 
 """Visualisation pipeline"""
-visualisation.visualise(fs, result_df)
+#visualisation.visualise(fs, result_df)
 

@@ -49,9 +49,12 @@ def purge_project(proj):
     delete_feature_groups(fs, "weather")
     delete_feature_groups(fs, "vehicle")
     delete_feature_groups(fs, "stops")
+    delete_feature_groups(fs, "triplicate")
+    delete_feature_groups(fs, "vehicle_future")
+    delete_feature_groups(fs, "predictions")
 
     # Delete all Models
-    #delete_models(mr, "air_quality_xgboost_model")
+    delete_models(mr, "bus_occupancy_xgboost_model")
     #delete_secrets(proj, "SENSOR_LOCATION_JSON")
 
 
