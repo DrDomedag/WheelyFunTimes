@@ -2,19 +2,20 @@
 #Then test LSTM
 
 import os
-
+"""
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = "python"
+"""
 
-from date_data import get_calendar_data
-import weather_data
-from datetime import timedelta, datetime
-from dateutil.relativedelta import relativedelta
+#from date_data import get_calendar_data
+#import weather_data
+#from datetime import timedelta, datetime
+#from dateutil.relativedelta import relativedelta
 import pandas as pd
-import pykoda_main.src.pykoda as pk
-import get_static_custom
-import hopsworks
-import vehicle_data
-import numpy as np
+#import pykoda_main.src.pykoda as pk
+#import get_static_custom
+#import hopsworks
+#import vehicle_data
+#import numpy as np
 
 from hsml.schema import Schema
 from hsml.model_schema import ModelSchema
@@ -114,8 +115,8 @@ def train(fs, mr, train_test_data_split_time, plot=False):
     # Save model to Hopsworks
 
     # Creating input and output schemas using the 'Schema' class for features (X) and target variable (y)
-    input_schema = Schema(X_train)
-    output_schema = Schema(y_train)
+    input_schema = Schema(train_features)
+    output_schema = Schema(train_labels)
 
     # Creating a model schema using 'ModelSchema' with the input and output schemas
     model_schema = ModelSchema(input_schema=input_schema, output_schema=output_schema)
@@ -123,22 +124,21 @@ def train(fs, mr, train_test_data_split_time, plot=False):
     # Converting the model schema to a dictionary representation
     schema_dict = model_schema.to_dict()
     # Saving the XGBoost regressor object as a json file in the model directory
-    model_dir = "/models/"
+    
     xgb_classifier.save_model(model_dir + "/model.json")
     res_dict = { 
             "MSE": str(mse),
             "R squared": str(r2),
         }
-    mr = project.get_model_registry()
 
     # Creating a Python model in the model registry named 'air_quality_xgboost_model'
 
     aq_model = mr.python.create_model(
-        name="air_quality_xgboost_model", 
+        name="bus_occupancy_xgboost_model", 
         metrics= res_dict,
         model_schema=model_schema,
-        input_example=X_test.sample().values, 
-        description="Air Quality (PM2.5) predictor",
+        input_example=test_features.sample().values, 
+        description="Bus occupancy predictor for Skane",
     )
 
     # Saving the model artifacts to the 'air_quality_model' directory in the model registry
