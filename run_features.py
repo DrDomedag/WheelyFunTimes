@@ -38,7 +38,7 @@ else:
 
 #CACHE_DIR = config_data.get('cache_dir', appdirs.user_cache_dir('pykoda'))
 CACHE_DIR = "/cache_dir"
-os.makedirs(CACHE_DIR, exist_ok=True)
+#os.makedirs(CACHE_DIR, exist_ok=True)
 
 N_CPU = str(os.cpu_count())
 #API_KEY = config_data.get('api_key', '')
