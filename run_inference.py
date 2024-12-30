@@ -57,33 +57,8 @@ fs = project.get_feature_store()
 mr = project.get_model_registry()
 
 
-
-
-date = datetime.now()
-date = date - timedelta(days=4)
-year = date.year
-month = date.month
-day = date.day
-train_test_data_split_time = f"{year}-{month}-{day}"
-
-result_df = None
-
-"""Project purge"""
-# UNCOMMENT TO REMOVE **EVERYTHING**
-#util.purge_project(project)
-
-"""Backfill pipeline"""
-backfill.backfill(fs)
-
-"""Feature pipeline"""
-#feature_update.get_future()
-#feature_update.update_historical()
-
-"""Training pipeline"""
-#training.train(fs, mr, train_test_data_split_time, plot=False)
-
 """Inference pipeline"""
-#result_df = inference.inference(fs, mr)
+result_df = inference.inference(fs, mr)
 
 """Visualisation pipeline"""
 #visualisation.visualise(fs, result_df)

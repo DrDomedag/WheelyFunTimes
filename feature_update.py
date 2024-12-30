@@ -120,13 +120,8 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
 
     stop_fg.insert(stop_pos_df)"""
 
-def update_historical_weather():
+def update_historical_weather(date):
     # Get air quality feature group
-    yesterday = datetime.now() - timedelta(days=2)
-    year = yesterday.year
-    month = yesterday.month
-    day = yesterday.day
-    date = f"{year}-{month}-{day}"
 
     city = "Malmö"
     latitude = 55.3535
@@ -144,17 +139,10 @@ def update_historical_weather():
     weather_fg.insert(weather_df)
     
 
-def update_historical_vehicle():
+def update_historical_vehicle(yesterday_string):
     #Titta på dagens datum
     #Plocka data från koda från igår
     company = "skane"
-    now = datetime.now()
-    yesterday = now - timedelta(days = 2)
-    day = yesterday.day
-    month = yesterday.month
-    year = yesterday.year
-
-    yesterday_string = f"{year}-{month}-{day}"
 
     vehicle_df = vehicle_data.get_vehicle_position_data(company, yesterday_string, 0, 23)
 
@@ -174,9 +162,16 @@ fs = project.get_feature_store()
 
 #get_weather_forecast
 #get_dates()
-def update_historical():
-    #update_historical_weather()
-    update_historical_vehicle()
+def update_historical(previous):
+    now = datetime.now()
+    yesterday = now - timedelta(days = previous)
+    day = yesterday.day
+    month = yesterday.month
+    year = yesterday.year
+
+    yesterday_string = f"{year}-{month}-{day}"
+    update_historical_weather(yesterday_string)
+    update_historical_vehicle(yesterday_string)
     
 
 def get_future():
