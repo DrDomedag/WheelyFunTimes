@@ -47,6 +47,13 @@ def train(fs, mr, train_test_data_split_time, plot=False):
     training_data['route_long_name'] = training_data['route_long_name'].astype('category')
 
     training_data['vehicle_occupancy_status'] = training_data['vehicle_occupancy_status'].astype('int')
+    training_data["arbetsfri_dag"] = training_data["arbetsfri_dag"].astype("bool")
+    training_data["holiday"] = training_data["holiday"].astype("bool")
+    training_data["helgdag"] = training_data["helgdag"].astype("bool")
+    training_data["squeeze_day"] = training_data["squeeze_day"].astype("bool")
+    training_data["helgdagsafton"] = training_data["helgdagsafton"].astype("bool")
+    training_data["day_before_holiday"] = training_data["day_before_holiday"].astype("bool")
+    #training_data["arbetsfri_dag"] = training_data["arbetsfri_dag"].astype("bool")
     
     #training_data['datetime'] = pd.to_datetime(training_data['datetime'])
     #training_data['datetime'] = training_data['datetime'].tz_localize(None)

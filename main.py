@@ -79,14 +79,14 @@ result_df = None
 
 """Project purge"""
 # UNCOMMENT TO REMOVE **EVERYTHING**
-util.purge_project(project)
+#util.purge_project(project)
 
 """Backfill pipeline"""
 #backfill.backfill(fs, start_date=date, days=3)
 """Backfill pipeline"""
 #backfill.backfill(fs)
-day_list = [2, 3, 7, 9, 10, 12]
-backfill.backfill_list(fs, day_list)
+"""day_list = [2, 3, 7, 9, 10, 12]
+backfill.backfill_list(fs, day_list)"""
 
 """Feature pipeline"""
 #import feature_update
