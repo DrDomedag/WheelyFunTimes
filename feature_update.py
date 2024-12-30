@@ -54,8 +54,12 @@ def get_dates():
 
     date_df["datetime"] = pd.to_datetime(date_df['datetime'])
 
-    date_df["dag_i_veckan", "arbetsfri_dag", "holiday", "helgdag", "squeeze_day", "helgdagsafton", "day_before_holiday"] = date_df["dag_i_veckan", "arbetsfri_dag", "holiday", "helgdag", "squeeze_day", "helgdagsafton", "day_before_holiday"].astype(bool)
-
+    date_df["arbetsfri dag"] = date_df["arbetsfri dag"].astype(bool)
+    date_df["holiday"] = date_df["holiday"].astype(bool)
+    date_df["helgdag"] = date_df["helgdag"].astype(bool)
+    date_df["squeeze_day"] = date_df["squeeze_day"].astype(bool)
+    date_df["helgdagsafton"] = date_df["helgdagsafton"].astype(bool)
+    date_df["day_before_holiday"] = date_df["day_before_holiday"].astype(bool)
     date_df.info()
     #print(date_df.head(45))
 
