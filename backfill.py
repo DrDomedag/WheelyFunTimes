@@ -16,6 +16,15 @@ def backfill_dates(fs, year, month, day):
     date_df = date_df.rename(columns={"röd dag": "holiday", "klämdag": "squeeze_day", "dag före arbetsfri helgdag": "day_before_holiday", "datum": "datetime"})
 
     date_df["datetime"] = pd.to_datetime(date_df['datetime'])
+    date_df.info()
+    date_df["dag i vecka"] = date_df["dag i vecka"].astype(bool)
+    date_df["arbetsfri dag"] = date_df["arbetsfri dag"].astype(bool)
+    date_df["holiday"] = date_df["holiday"].astype(bool)
+    date_df["helgdag"] = date_df["helgdag"].astype(bool)
+    date_df["squeeze_day"] = date_df["squeeze_day"].astype(bool)
+    date_df["helgdagsafton"] = date_df["helgdagsafton"].astype(bool)
+    date_df["day_before_holiday"] = date_df["day_before_holiday"].astype(bool)
+
 
     date_fg = fs.get_or_create_feature_group(
         name='date',
@@ -57,6 +66,8 @@ def backfill_vehicles(fs, date, start_hour, end_hour):
     vehicle_df = vehicle_data.get_vehicle_position_data(company, date, start_hour, end_hour)
     # vehicle_df.info()
     # print(vehicle_df.head(10))
+
+    vehicle_df["direction_id"] = vehicle_df["direction_id"].astype(bool)
 
     vehicle_fg = fs.get_or_create_feature_group(
         name='vehicle',

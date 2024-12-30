@@ -54,6 +54,8 @@ def get_dates():
 
     date_df["datetime"] = pd.to_datetime(date_df['datetime'])
 
+    date_df["dag_i_veckan", "arbetsfri_dag", "holiday", "helgdag", "squeeze_day", "helgdagsafton", "day_before_holiday"] = date_df["dag_i_veckan", "arbetsfri_dag", "holiday", "helgdag", "squeeze_day", "helgdagsafton", "day_before_holiday"].astype(bool)
+
     date_df.info()
     #print(date_df.head(45))
 
@@ -82,8 +84,10 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
     print(stop_df.head(14))
     trip_df = data.trips
     trip_df.info()
-    """stop_pos_df = stop_df[["stop_name", "stop_lat", "stop_lon"]]
-    stop_pos_df = stop_pos_df.drop_duplicates()"""
+
+    #För stop - pos
+    stop_pos_df = stop_df[["stop_name", "stop_lat", "stop_lon"]]
+    stop_pos_df = stop_pos_df.drop_duplicates()
 
     trip_df = trip_df.drop(["trip_headsign", "service_id", "shape_id", "agency_id", "route_type", "route_desc"], axis=1)
     print("trips")
@@ -99,6 +103,8 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
 
     merged_df.info()
 
+    merged_df["direction_id"] = merged_df["direction_id"].astype(bool)
+
     # Retrieve feature groups
     vehicle_fg = fs.get_or_create_feature_group(
         name='vehicle_future',
@@ -110,7 +116,8 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
     )
     vehicle_fg.insert(merged_df)
 
-    """stop_fg = fs.get_or_create_feature_group(
+    #För stop - pos
+    stop_fg = fs.get_or_create_feature_group(
         name='stops',
         description='Positions for all stops',
         version=1,
@@ -118,7 +125,7 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
         # expectation_suite=weather_expectation_suite
     )
 
-    stop_fg.insert(stop_pos_df)"""
+    stop_fg.insert(stop_pos_df)
 
 def update_historical_weather(date):
     # Get air quality feature group
@@ -145,6 +152,8 @@ def update_historical_vehicle(yesterday_string):
     company = "skane"
 
     vehicle_df = vehicle_data.get_vehicle_position_data(company, yesterday_string, 0, 23)
+
+    vehicle_df["direction_id"] = vehicle_df["direction_id"].astype(bool)
 
     vehicle_fg = fs.get_feature_group(
     name='vehicle',
