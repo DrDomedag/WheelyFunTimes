@@ -85,7 +85,7 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
     """stop_pos_df = stop_df[["stop_name", "stop_lat", "stop_lon"]]
     stop_pos_df = stop_pos_df.drop_duplicates()"""
 
-    trip_df = trip_df.drop(["trip_headsign", "service_id", "shape_id", "agency_id", "route_long_name", "route_type", "route_desc"], axis=1)
+    trip_df = trip_df.drop(["trip_headsign", "service_id", "shape_id", "agency_id", "route_type", "route_desc"], axis=1)
     print("trips")
     trip_df.info()
 

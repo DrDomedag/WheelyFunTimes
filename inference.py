@@ -80,9 +80,9 @@ def inference(fs, mr):
     pred_df['dag_i_vecka'] = pred_df['dag_i_vecka'].astype('category')
     pred_df['route_long_name'] = pred_df['route_long_name'].astype('category')
 
-    pred_features = pred_df.drop(["trip_id", "datetime"], axis=1)
+    #pred_features = pred_df.drop(["trip_id", "datetime", "route_short_name"], axis=1)
     
-    pred_features = pred_features[['vehicle_position_latitude', 'vehicle_position_longitude', 'route_long_name', 'direction_id', 'temperature_2m', 'precipitation', 'wind_speed_10m', 'hourly_cloud_cover', 'dag_i_vecka', 'arbetsfri_dag', 'holiday', 'helgdag', 'squeeze_day', 'helgdagsafton', 'day_before_holiday', 'hour', 'minute']]
+    pred_features = pred_df[['vehicle_position_latitude', 'vehicle_position_longitude', 'route_long_name', 'direction_id', 'temperature_2m', 'precipitation', 'wind_speed_10m', 'hourly_cloud_cover', 'dag_i_vecka', 'arbetsfri_dag', 'holiday', 'helgdag', 'squeeze_day', 'helgdagsafton', 'day_before_holiday', 'hour', 'minute']]
 
     retrieved_model = mr.get_model(
         name="bus_occupancy_xgboost_model",

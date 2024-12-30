@@ -58,8 +58,8 @@ def train(fs, mr, train_test_data_split_time, plot=False):
     df_training = training_data.loc[training_data['datetime'] <= split_date]
     df_test = training_data.loc[training_data['datetime'] > split_date]
 
-    train_features = df_training.drop(["id", "trip_id", "datetime", "vehicle_occupancy_status"], axis=1)
-    test_features = df_test.drop(["id", "trip_id", "datetime", "vehicle_occupancy_status"], axis=1)
+    train_features = df_training.drop(["id", "trip_id", "datetime", "route_short_name", "vehicle_occupancy_status"], axis=1)
+    test_features = df_test.drop(["id", "trip_id", "datetime", "route_short_name", "vehicle_occupancy_status"], axis=1)
 
     train_labels = pd.DataFrame(df_training['vehicle_occupancy_status'])
     test_labels = pd.DataFrame(df_test['vehicle_occupancy_status'])
@@ -98,6 +98,7 @@ def train(fs, mr, train_test_data_split_time, plot=False):
     result_df["vehicle_occupancyStatus"] = predicted_labels
     result_df["datetime"] = df_test["datetime"]
     result_df["trip_id"] = df_test["trip_id"]
+    result_df["route_short_name"] = df_test["route_short_name"]
     result_df = result_df.sort_values(by=["datetime"])
     print(result_df.head())
     print(result_df.tail())

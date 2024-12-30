@@ -54,7 +54,7 @@ def get_static_data(date: str, company: str, outfolder: (str, None) = None) -> N
     if config.API_VERSION == 1:
        koda_url = f"https://koda.linkoping-ri.se/KoDa/api/v0.1?company={company}&feed=GTFSStatic&date={date}"
     else:
-        koda_url = f'https://koda.linkoping-ri.se/KoDa/api/v2/gtfs-rt/{company}/GTFSStatic?date={date}&key={config.API_KEY}'
+        koda_url = f'https://koda.linkoping-ri.se/KoDa/api/v2/gtfs-rt/{company}/GTFSStatic?date={date}&key={os.environ["KODA_API_KEY"]}'
 
     download = ey.func(download_file, inputs={'url': koda_url}, outputs={'file': outfolder + '.zip'})
 

@@ -43,6 +43,7 @@ import tqdm
 from .. import config
 from . import gtfs_realtime_pb2
 
+import os
 
 def _is_json(series: pd.Series) -> bool:
     try:
@@ -193,7 +194,7 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
     if config.API_VERSION == 1:
         koda_url = f"https://koda.linkoping-ri.se/KoDa/api/v0.1?company={company}&feed={feed}&date={date}"
     else:
-        koda_url = f'https://koda.linkoping-ri.se/KoDa/api/v2/gtfs-rt/{company}/{feed}?date={date}&hour={hour}&key={config.API_KEY}'
+        koda_url = f'https://koda.linkoping-ri.se/KoDa/api/v2/gtfs-rt/{company}/{feed}?date={date}&hour={hour}&key={os.environ["KODA_API_KEY"]}'
     out_path = f'{config.CACHE_DIR}\\' + f'{company}-{feed}-{date}-{hour}.7z'.lower()
     download = ey.func(download_file, inputs={'url': koda_url}, outputs={'file': out_path})
 
@@ -244,7 +245,7 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
             pd.DataFrame().reset_index().to_feather(task.outputs['outfile'])
         else:
             # Process matching files
-            parsed_files = Parallel(n_jobs=config.N_CPU, verbose=0)(
+            parsed_files = Parallel(n_jobs=os.environ["N_CPU"], verbose=0)(
                 delayed(_parse_gtfs)(open(file, 'rb').read()) for file in matching_files
             )
 

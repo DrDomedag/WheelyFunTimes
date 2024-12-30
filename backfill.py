@@ -69,10 +69,23 @@ def backfill_vehicles(fs, date, start_hour, end_hour):
 
     vehicle_fg.insert(vehicle_df)
 
-def backfill(fs):
 
-    date = datetime.now()
-    date = date - timedelta(days=2)
+def backfill(fs, start_date, days):
+    
+    for i in range(days):
+
+        date = start_date + timedelta(days=i)
+        
+        backfill_single_date(fs, date)
+
+
+def backfill_list(fs, dates):
+    for date in dates:
+        backfill_single_date(fs, date)
+
+
+def backfill_single_date(fs, date):
+    
     year = date.year
     month = date.month
     day = date.day

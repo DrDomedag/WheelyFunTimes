@@ -63,7 +63,7 @@ def get_static_data(company: str, outfolder: (str, None) = None) -> None:
     # Download data
     # ------------------------------------------------------------------------
     # 
-    url = f"https://opendata.samtrafiken.se/gtfs/{company}/{company}.zip?key={config.GTFS_STATIC_KEY}"
+    url = f"https://opendata.samtrafiken.se/gtfs/{company}/{company}.zip?key={os.environ['GTFS_STATIC_KEY']}"
 
     download = ey.func(download_file, inputs={'url': url}, outputs={'file': outfolder + '.zip'})
 
