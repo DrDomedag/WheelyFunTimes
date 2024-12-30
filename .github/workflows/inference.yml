@@ -1,4 +1,4 @@
-name: features
+name: inference
 on:
   workflow_dispatch:
   schedule:
