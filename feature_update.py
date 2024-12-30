@@ -153,10 +153,6 @@ def update_historical_vehicle(yesterday_string):
     vehicle_fg.insert(vehicle_df)    
 
 
-
-with open('HOPSWORKS_API_KEY.txt', 'r') as file:
-    os.environ["HOPSWORKS_API_KEY"] = file.read().rstrip()
-
 project = hopsworks.login(project="id2223AirQuality")
 fs = project.get_feature_store()
 
