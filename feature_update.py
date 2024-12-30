@@ -185,7 +185,7 @@ def update_historical(previous):
 
 def get_future():
     
-    get_dates()
+    #get_dates()
     get_weather_forecast()
     get_vehicle()
 
