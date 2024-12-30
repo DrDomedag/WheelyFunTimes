@@ -21,6 +21,8 @@ with open('HOPSWORKS_API_KEY.txt', 'r') as file:
     os.environ["HOPSWORKS_API_KEY"] = file.read().rstrip()
 
 
+
+
 default_config = {
     'api_key': '',
     'cache_dir': appdirs.user_cache_dir('pykoda'),
@@ -53,7 +55,7 @@ mr = project.get_model_registry()
 
 
 """Feature pipeline"""
-days_prior=1
+days_prior=2
 
 feature_update.get_future()
 feature_update.update_historical(days_prior)

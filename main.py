@@ -78,17 +78,21 @@ result_df = None
 
 """Project purge"""
 # UNCOMMENT TO REMOVE **EVERYTHING**
-util.purge_project(project)
+#util.purge_project(project)
 
 """Backfill pipeline"""
-backfill.backfill(fs, start_date=date, days=3)
+#backfill.backfill(fs, start_date=date, days=3)
+"""Backfill pipeline"""
+#backfill.backfill(fs)
+#day_list = [2, 3, 7, 9, 10, 12]
+#backfill.backfill_list(fs, day_list)
 
 """Feature pipeline"""
 #feature_update.get_future()
 #feature_update.update_historical(2)
 
 """Training pipeline"""
-#training.train(fs, mr, train_test_data_split_time, plot=False)
+training.train(fs, mr, train_test_data_split_time, plot=False)
 
 """Inference pipeline"""
 #result_df = inference.inference(fs, mr)
