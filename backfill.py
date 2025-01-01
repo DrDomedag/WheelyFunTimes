@@ -90,10 +90,16 @@ def backfill(fs, start_date, days):
         backfill_single_date(fs, date)
 
 
+'''
 def backfill_list(fs, days):
     now = datetime.now()
     for day in days:
         date = now - timedelta(day)
+        backfill_single_date(fs, date)
+'''
+
+def backfill_list(fs, dates):
+    for date in dates:
         backfill_single_date(fs, date)
 
 

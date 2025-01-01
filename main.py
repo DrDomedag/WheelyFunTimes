@@ -1,19 +1,14 @@
 import os
+import appdirs
 
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = "python"
 
-import appdirs
 import configparser
 import pandas as pd
 import hopsworks
 from datetime import datetime, timedelta
 
-import training
 
-import inference
-import visualisation
-import util
-import backfill
 
 
 pd.set_option('display.max_rows', 500)
@@ -43,8 +38,15 @@ if os.path.exists(CONFIG_DIR):
 else:
     config_data = dict()
 
+os.environ["cache_dir"] = config_data.get('cache_dir', appdirs.user_cache_dir('pykoda'))
+
+os.makedirs(os.environ["cache_dir"], exist_ok=True)
+
+'''
 CACHE_DIR = config_data.get('cache_dir', appdirs.user_cache_dir('pykoda'))
+
 os.makedirs(CACHE_DIR, exist_ok=True)
+'''
 
 N_CPU = str(config_data.get('n_cpu', -1))
 KODA_API_KEY = config_data.get('koda_api_key', '')
@@ -55,6 +57,13 @@ os.environ["KODA_API_KEY"] = KODA_API_KEY
 os.environ["GTFS_STATIC_KEY"] = GTFS_STATIC_KEY
 
 #print(pk.geoutils.flat_distance((0.1, 0.01), (0.2, 0.3)))
+
+
+import training
+import inference
+import visualisation
+import util
+import backfill
 
 
 project = hopsworks.login(project="id2223AirQuality")
@@ -80,13 +89,44 @@ result_df = None
 """Project purge"""
 # UNCOMMENT TO REMOVE **EVERYTHING**
 #util.purge_project(project)
+#util.purge_project(project)
 
 """Backfill pipeline"""
 #backfill.backfill(fs, start_date=date, days=3)
 """Backfill pipeline"""
 #backfill.backfill(fs)
-"""day_list = [2, 3, 7, 9, 10, 12]
-backfill.backfill_list(fs, day_list)"""
+#day_list = [2, 3, 7, 9, 10, 12]
+dates = []
+#dates.append(datetime(year=year, month=month, day=15))
+
+'''
+dates.append(datetime(year=year, month=month, day=15))
+dates.append(datetime(year=year, month=month, day=16))
+dates.append(datetime(year=year, month=month, day=17))
+dates.append(datetime(year=year, month=month, day=19))
+dates.append(datetime(year=year, month=month, day=22))
+dates.append(datetime(year=year, month=month, day=24))
+dates.append(datetime(year=year, month=month, day=25))
+dates.append(datetime(year=year, month=month, day=26))
+
+dates.append(datetime(year=year, month=month, day=14))
+dates.append(datetime(year=year, month=month, day=13))
+dates.append(datetime(year=year, month=month, day=12))
+dates.append(datetime(year=year, month=month, day=11))
+dates.append(datetime(year=year, month=month, day=10))
+dates.append(datetime(year=year, month=month, day=9))
+dates.append(datetime(year=year, month=month, day=8))
+dates.append(datetime(year=year, month=month, day=7))
+dates.append(datetime(year=year, month=month, day=6))
+dates.append(datetime(year=year, month=month, day=5))
+dates.append(datetime(year=year, month=month, day=4))
+dates.append(datetime(year=year, month=month, day=3))
+dates.append(datetime(year=year, month=month, day=2))
+dates.append(datetime(year=year, month=month, day=1))
+'''
+dates.append(datetime(year=year, month=month, day=24))
+
+backfill.backfill_list(fs, dates)
 
 """Feature pipeline"""
 #import feature_update
@@ -94,7 +134,7 @@ backfill.backfill_list(fs, day_list)"""
 #feature_update.update_historical(2)
 
 """Training pipeline"""
-training.train(fs, mr, train_test_data_split_time, plot=False)
+#training.train(fs, mr, train_test_data_split_time, plot=False)
 
 """Inference pipeline"""
 #result_df = inference.inference(fs, mr)
