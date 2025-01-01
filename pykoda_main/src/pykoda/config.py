@@ -24,6 +24,7 @@ else:
 
 #CACHE_DIR = config_data.get('cache_dir', appdirs.user_cache_dir('pykoda'))
 CACHE_DIR = os.environ["cache_dir"]
+print(CACHE_DIR)
 os.makedirs(CACHE_DIR, exist_ok=True)
 
 N_CPU = int(config_data.get('n_cpu', -1))
