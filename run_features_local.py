@@ -28,4 +28,7 @@ os.environ["GTFS_STATIC_KEY"] = GTFS_STATIC_KEY
 with open('HOPSWORKS_API_KEY.txt', 'r') as file:
     os.environ["HOPSWORKS_API_KEY"] = file.read().rstrip()
 
+os.environ["cache_dir"] = config_data.get('cache_dir', appdirs.user_cache_dir('pykoda'))
+# Remember to comment out equivalent line in run_features, or this will be overwritten.
+
 import run_features
