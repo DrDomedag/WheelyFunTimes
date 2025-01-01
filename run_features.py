@@ -1,6 +1,8 @@
 import os
 
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = "python"
+os.environ["cache_dir"] = '/cache_dir'
+N_CPU = str(os.cpu_count())
 
 import appdirs
 import configparser
@@ -37,10 +39,9 @@ else:
     config_data = dict()"""
 
 #CACHE_DIR = config_data.get('cache_dir', appdirs.user_cache_dir('pykoda'))
-os.environ["cache_dir"] = '/cache_dir'
+
 #os.makedirs(CACHE_DIR, exist_ok=True)
 
-N_CPU = str(os.cpu_count())
 #API_KEY = config_data.get('api_key', '')
 
 #print(pk.geoutils.flat_distance((0.1, 0.01), (0.2, 0.3)))
