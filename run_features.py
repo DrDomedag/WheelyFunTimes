@@ -55,7 +55,7 @@ mr = project.get_model_registry()
 
 
 """Feature pipeline"""
-days_prior=3
+days_prior=2
 
 feature_update.get_future()
 feature_update.update_historical(days_prior)
