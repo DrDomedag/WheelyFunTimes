@@ -124,7 +124,7 @@ dates.append(datetime(year=year, month=month, day=3))
 dates.append(datetime(year=year, month=month, day=2))
 dates.append(datetime(year=year, month=month, day=1))
 '''
-dates.append(datetime(year=year, month=month, day=24))
+dates.append(datetime(year=year, month=month, day=1))
 
 backfill.backfill_list(fs, dates)
 

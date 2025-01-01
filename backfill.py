@@ -109,7 +109,9 @@ def backfill_single_date(fs, date):
     month = date.month
     day = date.day
 
-    date = f"{year}-{month}-{day}"
+    #date = f"{year}-{month}-{day}"
+    date = datetime.strftime(date, "%Y-%m-%d")
+    print(date)
 
     start_hour = 0
     end_hour = 23
