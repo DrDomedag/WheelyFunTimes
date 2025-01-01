@@ -1,7 +1,8 @@
 import os
 
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = "python"
-os.environ["cache_dir"] = '/cache_dir'
+
+os.environ["cache_dir"] = os.path.join(os.environ["RUNNER_TEMP"], '/cache_dir')
 N_CPU = str(os.cpu_count())
 
 import appdirs

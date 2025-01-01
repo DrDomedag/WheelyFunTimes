@@ -23,8 +23,7 @@ else:
     config_data = dict()
 
 #CACHE_DIR = config_data.get('cache_dir', appdirs.user_cache_dir('pykoda'))
-CACHE_DIR = os.path.join(os.environ["RUNNER_TEMP"], os.environ["cache_dir"])
-#CACHE_DIR = os.environ["cache_dir"]
+CACHE_DIR = os.environ["cache_dir"]
 os.makedirs(CACHE_DIR, exist_ok=True)
 
 N_CPU = int(config_data.get('n_cpu', -1))
