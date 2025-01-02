@@ -38,7 +38,7 @@ if os.path.exists(CONFIG_DIR):
 else:
     config_data = dict()
 
-#os.environ["cache_dir"] = config_data.get('cache_dir', appdirs.user_cache_dir('pykoda'))
+os.environ["cache_dir"] = config_data.get('cache_dir', appdirs.user_cache_dir('pykoda'))
 
 #os.makedirs(os.environ["cache_dir"], exist_ok=True)
 
@@ -91,6 +91,19 @@ result_df = None
 #util.purge_project(project)
 #util.purge_project(project)
 
+
+"""Data request pipeline"""
+import prerequestfiles
+
+dates = []
+for i in range(14):
+    date = datetime(year=2024, month=12, day=(i+1))
+    date = datetime.strftime(date, "%Y-%m-%d")
+    dates.append(date)
+
+prerequestfiles.make_requests(dates)
+
+
 """Backfill pipeline"""
 #backfill.backfill(fs, start_date=date, days=3)
 """Backfill pipeline"""
@@ -137,7 +150,7 @@ dates.append(datetime(year=year, month=month, day=1))
 #training.train(fs, mr, train_test_data_split_time, plot=False)
 
 """Inference pipeline"""
-result_df = inference.inference(fs, mr)
+#result_df = inference.inference(fs, mr)
 
 """Visualisation pipeline"""
 #visualisation.visualise(fs, result_df)
