@@ -35,11 +35,14 @@ def fetch_data(date, hour):
 
 def download_file(url, date, hour):
     try:
+        file_path = os.path.join(os.environ["cache_dir"], f"skane-vehiclepositions-{date}-{hour}.7z")
+        if os.path.exists(file_path):
+            print(f"File already exists: {file_path}. Skipping download.")
+            return
+        
         # Send a GET request to download the file
         response = requests.get(url, stream=True)
         if response.status_code == 200 and "application/x-7z-compressed" in response.headers.get("Content-Type", ""):
-            file_path = os.path.join(os.environ["cache_dir"], f"skane-vehiclepositions-{date}-{hour}.7z")
-            
             with open(file_path, "wb") as file:
                 for chunk in response.iter_content(chunk_size=8192):
                     file.write(chunk)
