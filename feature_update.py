@@ -11,6 +11,7 @@ import pykoda_main.src.pykoda as pk
 import get_static_custom
 import hopsworks
 import vehicle_data
+import util
 
 
 def get_weather_forecast():
@@ -106,6 +107,8 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
 
     # TODO - Töm/radera feature groupen innan så att vi inte har en massa gammal 'future'-data kvar.
 
+    util.delete_feature_groups(fs, "vehicle_future")
+
     # Retrieve feature groups
     vehicle_fg = fs.get_or_create_feature_group(
         name='vehicle_future',
@@ -183,8 +186,8 @@ def update_historical(previous):
 def get_future():
     
     #get_dates()
-    get_weather_forecast()
-    #get_vehicle()
+    #get_weather_forecast()
+    get_vehicle()
 
 """update_historical()
 get_future()"""

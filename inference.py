@@ -4,6 +4,7 @@ from xgboost import XGBClassifier
 from xgboost import plot_importance
 import matplotlib.pyplot as plt
 import datetime
+import util
 
 def get_data(fs):
     weather_fg = fs.get_feature_group(
@@ -12,6 +13,7 @@ def get_data(fs):
     )
     date = datetime.datetime.now() - datetime.timedelta(days=1)
     batch_data = weather_fg.filter(weather_fg.datetime >= date).read()
+
 
     date_fg = fs.get_feature_group(
         name="date",
@@ -24,7 +26,7 @@ def get_data(fs):
     )
 
     weather_df = batch_data
-    date_df = date_fg.filter(date_fg.datetime >= date).read()
+    date_df = date_fg.filter(date_fg.datetime >= date).read()    
 
     weather_df = weather_df.sort_values('datetime')
     date_df = date_df.sort_values('datetime')
@@ -38,10 +40,12 @@ def get_data(fs):
         direction='backward',  # Matches the nearest earlier daily timestamp
         tolerance=pd.Timedelta('1d')  # Allow matching within 1 day
     )
+    
+    weather_date_df = weather_date_df.dropna()
 
     vehicle_df = vehicle_fg.filter(vehicle_fg.datetime >= date).read()
     vehicle_df = vehicle_df.sort_values("datetime")
-    vehicle_df["datetime"] = pd.to_datetime(vehicle_df["datetime"])
+    #vehicle_df["datetime"] = pd.to_datetime(vehicle_df["datetime"])
 
     weather_df.info()
     date_df.info()
@@ -57,6 +61,13 @@ def get_data(fs):
 
     triplicate_df["hour"] = triplicate_df["datetime"].dt.hour
     triplicate_df["minute"] = triplicate_df["datetime"].dt.minute
+
+    triplicate_df.info()
+    ids = list(pd.unique(triplicate_df["trip_id"]))
+    id = ids[300]
+    show_df = triplicate_df[triplicate_df["trip_id"]==id]
+    print(show_df.head())
+    print(show_df.tail())
 
     return triplicate_df
         
@@ -75,12 +86,21 @@ def upload_result_to_hopsworks(fs, df):
 
 
 def inference(fs, mr):
+    util.delete_feature_groups(fs, "predictions")
+
     pred_df = get_data(fs)
 
     pred_df = pred_df.dropna()
 
     pred_df['dag_i_vecka'] = pred_df['dag_i_vecka'].astype('category')
     pred_df['route_long_name'] = pred_df['route_long_name'].astype('category')
+
+    pred_df["arbetsfri_dag"] = pred_df["arbetsfri_dag"].astype("bool")
+    pred_df["holiday"] = pred_df["holiday"].astype("bool")
+    pred_df["helgdag"] = pred_df["helgdag"].astype("bool")
+    pred_df["squeeze_day"] = pred_df["squeeze_day"].astype("bool")
+    pred_df["helgdagsafton"] = pred_df["helgdagsafton"].astype("bool")
+    pred_df["day_before_holiday"] = pred_df["day_before_holiday"].astype("bool")
 
     #pred_features = pred_df.drop(["trip_id", "datetime", "route_short_name"], axis=1)
     
