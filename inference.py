@@ -10,8 +10,8 @@ def get_data(fs):
         name='weather',
         version=1,
     )
-    today = datetime.datetime.now() - datetime.timedelta(0)
-    batch_data = weather_fg.filter(weather_fg.datetime >= today).read()
+    date = datetime.datetime.now() - datetime.timedelta(days=1)
+    batch_data = weather_fg.filter(weather_fg.datetime >= date).read()
 
     date_fg = fs.get_feature_group(
         name="date",
@@ -24,7 +24,7 @@ def get_data(fs):
     )
 
     weather_df = batch_data
-    date_df = date_fg.read()
+    date_df = date_fg.filter(date_fg.datetime >= date).read()
 
     weather_df = weather_df.sort_values('datetime')
     date_df = date_df.sort_values('datetime')
@@ -39,11 +39,13 @@ def get_data(fs):
         tolerance=pd.Timedelta('1d')  # Allow matching within 1 day
     )
 
-    vehicle_df = vehicle_fg.read()
+    vehicle_df = vehicle_fg.filter(vehicle_fg.datetime >= date).read()
     vehicle_df = vehicle_df.sort_values("datetime")
     vehicle_df["datetime"] = pd.to_datetime(vehicle_df["datetime"])
 
-    
+    weather_df.info()
+    date_df.info()
+    vehicle_df.info()
 
     triplicate_df = pd.merge_asof(
         vehicle_df,

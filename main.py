@@ -38,15 +38,15 @@ if os.path.exists(CONFIG_DIR):
 else:
     config_data = dict()
 
-os.environ["cache_dir"] = config_data.get('cache_dir', appdirs.user_cache_dir('pykoda'))
+#os.environ["cache_dir"] = config_data.get('cache_dir', appdirs.user_cache_dir('pykoda'))
 
-os.makedirs(os.environ["cache_dir"], exist_ok=True)
+#os.makedirs(os.environ["cache_dir"], exist_ok=True)
 
-'''
+
 CACHE_DIR = config_data.get('cache_dir', appdirs.user_cache_dir('pykoda'))
 
 os.makedirs(CACHE_DIR, exist_ok=True)
-'''
+
 
 N_CPU = str(config_data.get('n_cpu', -1))
 KODA_API_KEY = config_data.get('koda_api_key', '')
@@ -126,7 +126,7 @@ dates.append(datetime(year=year, month=month, day=1))
 '''
 dates.append(datetime(year=year, month=month, day=1))
 
-backfill.backfill_list(fs, dates)
+#backfill.backfill_list(fs, dates)
 
 """Feature pipeline"""
 #import feature_update
@@ -137,7 +137,7 @@ backfill.backfill_list(fs, dates)
 #training.train(fs, mr, train_test_data_split_time, plot=False)
 
 """Inference pipeline"""
-#result_df = inference.inference(fs, mr)
+result_df = inference.inference(fs, mr)
 
 """Visualisation pipeline"""
 #visualisation.visualise(fs, result_df)

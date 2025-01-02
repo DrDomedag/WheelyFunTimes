@@ -27,12 +27,7 @@ def get_weather_forecast():
     version=1,
     )
 
-    # weather_data_forecast_df.info()
-    # print(weather_data_forecast_df.head())
-
     weather_fg.insert(weather_data_forecast_df)
-    # weather_data_forecast_df.info()
-    # print(weather_data_forecast_df.head())
 
 
 def get_dates():
@@ -108,6 +103,8 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
     merged_df.info()
 
     merged_df["direction_id"] = merged_df["direction_id"].astype(bool)
+
+    # TODO - Töm/radera feature groupen innan så att vi inte har en massa gammal 'future'-data kvar.
 
     # Retrieve feature groups
     vehicle_fg = fs.get_or_create_feature_group(
@@ -187,7 +184,7 @@ def get_future():
     
     #get_dates()
     get_weather_forecast()
-    get_vehicle()
+    #get_vehicle()
 
 """update_historical()
 get_future()"""

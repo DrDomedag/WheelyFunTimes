@@ -228,7 +228,8 @@ def load_static_data(company: str, date: str, remove_unused_stations: bool = Fal
 def clean_cache() -> None:
     """Apply cleaning filters to all files in the cache, to fix issues with arrays downloaded with older versions."""
 
-    for f in tqdm.tqdm(glob.glob(os.path.join(os.environ["cache_dir"], '*feather'))):
+    #for f in tqdm.tqdm(glob.glob(os.path.join(os.environ["cache_dir"], '*feather'))):
+    for f in tqdm.tqdm(glob.glob(os.path.join(config.CACHE_DIR, '*feather'))):
         df = pd.read_feather(f)
         if 'ServiceAlerts' in f:
             df = getdata.unpack_jsons(df)

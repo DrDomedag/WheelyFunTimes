@@ -87,7 +87,8 @@ def unpack_jsons(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _get_data_path(company: str, feed: str, date: str, hour: (int, str)) -> str:
-    return f'{os.environ["cache_dir"]}/{company}_{feed}_{date.replace("-", "_")}_{hour}.feather'
+    #return f'{os.environ["cache_dir"]}/{company}_{feed}_{date.replace("-", "_")}_{hour}.feather'
+    return f'{config.CACHE_DIR}/{company}_{feed}_{date.replace("-", "_")}_{hour}.feather'
 
 
 def _parse_gtfs(gtfsrt: bytes) -> pd.DataFrame:
@@ -195,7 +196,9 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
         koda_url = f"https://koda.linkoping-ri.se/KoDa/api/v0.1?company={company}&feed={feed}&date={date}"
     else:
         koda_url = f'https://koda.linkoping-ri.se/KoDa/api/v2/gtfs-rt/{company}/{feed}?date={date}&hour={hour}&key={os.environ["KODA_API_KEY"]}'
-    out_path = f'{os.environ["cache_dir"]}\\' + f'{company}-{feed}-{date}-{hour}.7z'.lower()
+    #out_path = f'{os.environ["cache_dir"]}\\' + f'{company}-{feed}-{date}-{hour}.7z'.lower()
+    out_path = f'{config.CACHE_DIR}\\' + f'{company}-{feed}-{date}-{hour}.7z'.lower()
+    print(out_path)
     download = ey.func(download_file, inputs={'url': koda_url}, outputs={'file': out_path})
 
     # Check the file:
@@ -222,7 +225,8 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
         from joblib import Parallel, delayed
 
         # Temporary directory for extracting 7-Zip contents
-        temp_dir = os.environ["cache_dir"] + "\\extracted_files"
+        #temp_dir = os.environ["cache_dir"] + "\\extracted_files"
+        temp_dir = config.CACHE_DIR + "\\extracted_files"
 
         # Extract the 7-Zip file
         with py7zr.SevenZipFile(bz2_file_name, mode='r') as archive:
