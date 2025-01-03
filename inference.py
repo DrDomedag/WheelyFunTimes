@@ -5,6 +5,7 @@ from xgboost import plot_importance
 import matplotlib.pyplot as plt
 import datetime
 import util
+import merge_with_stops
 
 def get_data(fs):
     weather_fg = fs.get_feature_group(
@@ -129,9 +130,13 @@ def inference(fs, mr):
     result_df["vehicle_occupancyStatus"] = pred_labels
     result_df = result_df.sort_values(by=["datetime"])
 
-    upload_result_to_hopsworks(fs, result_df)
+    #Merge with stops to add the stop name
 
-    return result_df
+    merged_df = merge_with_stops.merge_exact(fs, result_df)
+
+    upload_result_to_hopsworks(fs, merged_df)
+
+    return merged_df
 
     
 

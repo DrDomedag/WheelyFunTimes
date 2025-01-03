@@ -101,7 +101,7 @@ for i in range(14):
     date = datetime.strftime(date, "%Y-%m-%d")
     dates.append(date)
 
-prerequestfiles.make_requests(dates)
+#prerequestfiles.make_requests(dates)
 
 
 """Backfill pipeline"""
