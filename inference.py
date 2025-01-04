@@ -86,12 +86,15 @@ def upload_result_to_hopsworks(fs, df):
     predictions_fg.insert(df)
 
 
+
 def inference(fs, mr):
     util.delete_feature_groups(fs, "predictions")
 
     pred_df = get_data(fs)
 
     pred_df = pred_df.dropna()
+
+    #pred_df = drop_near_dublicates(pred_df)
 
     pred_df['dag_i_vecka'] = pred_df['dag_i_vecka'].astype('category')
     pred_df['route_long_name'] = pred_df['route_long_name'].astype('category')

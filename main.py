@@ -150,7 +150,7 @@ dates.append(datetime(year=year, month=month, day=1))
 #training.train(fs, mr, train_test_data_split_time, plot=False)
 
 """Inference pipeline"""
-#result_df = inference.inference(fs, mr)
+result_df = inference.inference(fs, mr)
 
 """Visualisation pipeline"""
 #visualisation.visualise(fs, result_df)

@@ -93,6 +93,8 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
     trip_df = trip_df.drop(["trip_headsign", "service_id", "shape_id", "agency_id", "route_type", "route_desc"], axis=1)
     print("trips")
     trip_df.info()
+    trip_df['route_id'] = trip_df.index.get_level_values('route_id')
+    trip_df.info()
 
     merged_df = trip_df.merge(stop_df, how="left", on="trip_id")
     merged_df.reset_index()
@@ -122,7 +124,7 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
     vehicle_fg.insert(merged_df)
 
     #För stop - pos
-    stop_fg = fs.get_or_create_feature_group(
+    """stop_fg = fs.get_or_create_feature_group(
         name='stops',
         description='Positions for all stops',
         version=1,
@@ -130,7 +132,7 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
         # expectation_suite=weather_expectation_suite
     )
 
-    stop_fg.insert(stop_pos_df)
+    stop_fg.insert(stop_pos_df)"""
 
 def update_historical_weather(date):
     # Get air quality feature group
