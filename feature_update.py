@@ -12,6 +12,7 @@ import get_static_custom
 import hopsworks
 import vehicle_data
 import util
+import prerequestfiles
 
 
 def get_weather_forecast():
@@ -154,6 +155,9 @@ def update_historical_vehicle(yesterday_string):
     #Titta på dagens datum
     #Plocka data från koda från igår
     company = "skane"
+    
+    for hour in range(24):
+        prerequestfiles.fetch_data(yesterday_string, hour)
 
     vehicle_df = vehicle_data.get_vehicle_position_data(company, yesterday_string, 0, 23)
 
