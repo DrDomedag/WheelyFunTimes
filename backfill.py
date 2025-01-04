@@ -17,7 +17,7 @@ def backfill_dates(fs, year, month, day):
 
     date_df["datetime"] = pd.to_datetime(date_df['datetime'])
     date_df.info()
-    date_df["dag i vecka"] = date_df["dag i vecka"].astype(bool)
+    date_df["dag i vecka"] = date_df["dag i vecka"].astype("category")
     date_df["arbetsfri dag"] = date_df["arbetsfri dag"].astype(bool)
     date_df["holiday"] = date_df["holiday"].astype(bool)
     date_df["helgdag"] = date_df["helgdag"].astype(bool)
