@@ -2,7 +2,7 @@ name: features
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 8 * * *'
+    - cron: '30 9 * * *'
 
 jobs:
   schedule_pipelines:
@@ -34,4 +34,10 @@ jobs:
           
         run: |
           python run_features.py
+
+      - name: run inference
+        env:
+          HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
+        run: |
+          python run_inference.py
 
