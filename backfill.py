@@ -16,7 +16,6 @@ def backfill_dates(fs, year, month, day):
     date_df = date_df.rename(columns={"röd dag": "holiday", "klämdag": "squeeze_day", "dag före arbetsfri helgdag": "day_before_holiday", "datum": "datetime"})
 
     date_df["datetime"] = pd.to_datetime(date_df['datetime'])
-    date_df.info()
     date_df["dag i vecka"] = date_df["dag i vecka"].astype("category")
     date_df["arbetsfri dag"] = date_df["arbetsfri dag"].astype(bool)
     date_df["holiday"] = date_df["holiday"].astype(bool)
@@ -42,10 +41,6 @@ def backfill_weather(fs, date):
 
     historical_weather_data_df = historical_weather_data_df.rename(columns={"date":"datetime"})
 
-    #historical_weather_data_df.info()
-    #print(historical_weather_data_df.head(24))
-
-    # Borde vara hyfsat lik, men ska uppdateras
     weather_fg = fs.get_or_create_feature_group(
         name='weather',
         description='Weather characteristics of each hour',
@@ -57,16 +52,11 @@ def backfill_weather(fs, date):
 
     weather_fg.insert(historical_weather_data_df)
 
-    # historical_weather_data_df.info()
-    # print(historical_weather_data_df.head())
-
 
 
 def backfill_vehicles(fs, date, start_hour, end_hour):
     vehicle_df = vehicle_data.get_vehicle_position_data(company, date, start_hour, end_hour)
-    # vehicle_df.info()
-    # print(vehicle_df.head(10))
-
+    
     vehicle_df["direction_id"] = vehicle_df["direction_id"].astype(bool)
 
     vehicle_fg = fs.get_or_create_feature_group(
@@ -111,7 +101,7 @@ def backfill_single_date(fs, date):
 
     #date = f"{year}-{month}-{day}"
     date = datetime.strftime(date, "%Y-%m-%d")
-    print(date)
+    print(f"Running backfill for date: {date}")
 
     start_hour = 0
     end_hour = 23

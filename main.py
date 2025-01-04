@@ -73,7 +73,7 @@ mr = project.get_model_registry()
 
 
 
-
+'''
 date = datetime.now()
 date = date - timedelta(days=8)
 
@@ -85,6 +85,7 @@ day = date.day
 train_test_data_split_time = f"{year}-{month}-{day}"
 
 result_df = None
+'''
 
 """Project purge"""
 # UNCOMMENT TO REMOVE **EVERYTHING**
@@ -96,12 +97,11 @@ result_df = None
 import prerequestfiles
 
 dates = []
-for i in range(14):
+for i in range(31):
     date = datetime(year=2024, month=12, day=(i+1))
-    date = datetime.strftime(date, "%Y-%m-%d")
     dates.append(date)
 
-#prerequestfiles.make_requests(dates)
+prerequestfiles.make_requests(dates)
 
 
 """Backfill pipeline"""
@@ -121,6 +121,14 @@ dates.append(datetime(year=year, month=month, day=22))
 dates.append(datetime(year=year, month=month, day=24))
 dates.append(datetime(year=year, month=month, day=25))
 dates.append(datetime(year=year, month=month, day=26))
+'''
+
+'''
+#dates.append(datetime(year=year, month=month, day=29)) # Testar utan 29 - failar på static.
+year = 2024
+month = 12
+dates.append(datetime(year=year, month=month, day=30))
+dates.append(datetime(year=year, month=month, day=31))
 
 dates.append(datetime(year=year, month=month, day=14))
 dates.append(datetime(year=year, month=month, day=13))
@@ -136,10 +144,9 @@ dates.append(datetime(year=year, month=month, day=4))
 dates.append(datetime(year=year, month=month, day=3))
 dates.append(datetime(year=year, month=month, day=2))
 dates.append(datetime(year=year, month=month, day=1))
-'''
-dates.append(datetime(year=year, month=month, day=1))
 
-#backfill.backfill_list(fs, dates)
+backfill.backfill_list(fs, dates)
+'''
 
 """Feature pipeline"""
 #import feature_update
