@@ -96,12 +96,12 @@ result_df = None
 """Data request pipeline"""
 import prerequestfiles
 
-dates = []
+"""dates = []
 for i in range(31):
     date = datetime(year=2024, month=12, day=(i+1))
-    dates.append(date)
+    dates.append(date)"""
 
-prerequestfiles.make_requests(dates)
+#prerequestfiles.make_requests(dates)
 
 
 """Backfill pipeline"""
@@ -149,7 +149,7 @@ backfill.backfill_list(fs, dates)
 '''
 
 """Feature pipeline"""
-#import feature_update
+import feature_update
 #feature_update.get_future()
 #feature_update.update_historical(2)
 
@@ -157,8 +157,16 @@ backfill.backfill_list(fs, dates)
 #training.train(fs, mr, train_test_data_split_time, plot=False)
 
 """Inference pipeline"""
-result_df = inference.inference(fs, mr)
+#result_df = inference.inference(fs, mr)
 
 """Visualisation pipeline"""
 #visualisation.visualise(fs, result_df)
+
+previous = 2
+
+now = datetime.now()
+yesterday = now - timedelta(days = previous)
+yesterday_string = yesterday.strftime("%Y-%m-%d")
+
+feature_update.get_weather(yesterday_string)
 

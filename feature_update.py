@@ -168,7 +168,27 @@ def update_historical_vehicle(yesterday_string, date):
     name='vehicle',
     version=1,
     )
-    vehicle_fg.insert(vehicle_df)    
+    vehicle_fg.insert(vehicle_df) 
+
+def get_weather(date):
+    city = "Malmö"
+    latitude = 55.3535
+    longitude = 13.0117
+    
+    historical_weather_df = weather_data.get_historical_weather(city, date, date, latitude, longitude)
+
+    weather_data_forecast_df = weather_data.get_hourly_weather_forecast(city, latitude, longitude)
+
+    weather_df = pd.concat([historical_weather_df, weather_data_forecast_df])
+
+    weather_df = weather_df.rename(columns={"date":"datetime"})
+
+    weather_fg = fs.get_feature_group(
+        name='weather',
+        version=1,
+    )
+    
+    weather_fg.insert(weather_df)
 
 
 project = hopsworks.login(project="id2223AirQuality")
@@ -184,17 +204,18 @@ def update_historical(previous):
     year = yesterday.year
 
     yesterday_string = yesterday.strftime("%Y-%m-%d")
-    update_historical_weather(yesterday_string)
+    get_weather(yesterday_string)
     update_historical_vehicle(yesterday_string, yesterday)
     
 
 def get_future():
     
     get_dates()
-    get_weather_forecast()
     get_vehicle()
 
 """update_historical()
 get_future()"""
 
+
+    
     
