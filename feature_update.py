@@ -15,7 +15,7 @@ import util
 import prerequestfiles
 
 
-def get_weather_forecast():
+def get_weather_forecast(fs):
     city = "Malmö"
     latitude = 55.3535
     longitude = 13.0117
@@ -32,7 +32,7 @@ def get_weather_forecast():
     weather_fg.insert(weather_data_forecast_df)
 
 
-def get_dates():
+def get_dates(fs):
     now = datetime.now()
     #month = nuvarande månad
     year = now.year
@@ -67,7 +67,7 @@ def get_dates():
     )
     date_fg.insert(date_df)
 
-def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
+def get_vehicle(fs): #date: str, company: str, outfolder: (str, None) = None
     date = datetime.now()
     date = date + timedelta(days=1)
     year = date.year
@@ -134,7 +134,7 @@ def get_vehicle(): #date: str, company: str, outfolder: (str, None) = None
 
     stop_fg.insert(stop_pos_df)"""
 
-def update_historical_weather(date):
+def update_historical_weather(fs, date):
     # Get air quality feature group
 
     city = "Malmö"
@@ -153,7 +153,7 @@ def update_historical_weather(date):
     weather_fg.insert(weather_df)
     
 
-def update_historical_vehicle(yesterday_string, date):
+def update_historical_vehicle(fs, yesterday_string, date):
     #Titta på dagens datum
     #Plocka data från koda från igår
     company = "skane"
@@ -172,7 +172,7 @@ def update_historical_vehicle(yesterday_string, date):
     )
     vehicle_fg.insert(vehicle_df) 
 
-def get_weather(date):
+def get_weather(fs, date):
     city = "Malmö"
     latitude = 55.3535
     longitude = 13.0117
@@ -198,7 +198,7 @@ def get_weather(date):
 
 #get_weather_forecast
 #get_dates()
-def update_historical(previous):
+def update_historical(fs, previous):
     print("In update_historical vehicle")
     now = datetime.now()
     yesterday = now - timedelta(days = previous)
@@ -208,16 +208,16 @@ def update_historical(previous):
 
     yesterday_string = yesterday.strftime("%Y-%m-%d")
     print(f"The date is set to {yesterday_string}")
-    #get_weather(yesterday_string)
+    #get_weather(fs, yesterday_string)
     print("So now we call update historical vehicle")
-    update_historical_vehicle(yesterday_string, yesterday)
+    update_historical_vehicle(fs, yesterday_string, yesterday)
     print("And we are back")
     
 
-def get_future():
+def get_future(fs):
     print("Nothing to do here now")
-    #get_dates()
-    #get_vehicle()
+    #get_dates(fs)
+    #get_vehicle(fs)
 
 """update_historical()
 get_future()"""

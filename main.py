@@ -150,8 +150,8 @@ backfill.backfill_list(fs, dates)
 
 """Feature pipeline"""
 import feature_update
-#feature_update.get_future()
-#feature_update.update_historical(2)
+feature_update.get_future(fs)
+feature_update.update_historical(fs, 2)
 
 """Training pipeline"""
 #training.train(fs, mr, train_test_data_split_time, plot=False)
@@ -162,11 +162,11 @@ import feature_update
 """Visualisation pipeline"""
 #visualisation.visualise(fs, result_df)
 
-previous = 2
+"""previous = 2
 
 now = datetime.now()
 yesterday = now - timedelta(days = previous)
 yesterday_string = yesterday.strftime("%Y-%m-%d")
 
-feature_update.get_weather(yesterday_string)
+feature_update.get_weather(yesterday_string)"""
 
