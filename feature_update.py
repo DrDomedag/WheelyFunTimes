@@ -153,13 +153,12 @@ def update_historical_weather(date):
     weather_fg.insert(weather_df)
     
 
-def update_historical_vehicle(yesterday_string):
+def update_historical_vehicle(yesterday_string, date):
     #Titta på dagens datum
     #Plocka data från koda från igår
     company = "skane"
     
-    for hour in range(24):
-        prerequestfiles.fetch_data(yesterday_string, hour)
+    prerequestfiles.make_requests([date])
 
     vehicle_df = vehicle_data.get_vehicle_position_data(company, yesterday_string, 0, 23)
 
@@ -184,15 +183,15 @@ def update_historical(previous):
     month = yesterday.month
     year = yesterday.year
 
-    yesterday_string = f"{year}-{month}-{day}"
+    yesterday_string = yesterday.strftime("%Y-%m-%d")
     update_historical_weather(yesterday_string)
-    update_historical_vehicle(yesterday_string)
+    update_historical_vehicle(yesterday_string, yesterday)
     
 
 def get_future():
     
-    #get_dates()
-    #get_weather_forecast()
+    get_dates()
+    get_weather_forecast()
     get_vehicle()
 
 """update_historical()
