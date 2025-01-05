@@ -193,8 +193,8 @@ def get_weather(date):
     weather_fg.insert(weather_df)
 
 
-project = hopsworks.login(project="id2223AirQuality")
-fs = project.get_feature_store()
+#project = hopsworks.login(project="id2223AirQuality")
+#fs = project.get_feature_store()
 
 #get_weather_forecast
 #get_dates()
