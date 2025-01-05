@@ -226,7 +226,7 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
         from joblib import Parallel, delayed
 
         # Temporary directory for extracting 7-Zip contents
-        temp_dir = os.environ["cache_dir"] + "\\extracted_files"
+        temp_dir = os.environ["cache_dir"] + "/extracted_files"
         #temp_dir = config.CACHE_DIR + "\\extracted_files"
 
         print(f"bz2_file_name: {bz2_file_name}")
