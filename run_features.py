@@ -49,14 +49,16 @@ else:
 print(f'Found hopsworks_api_key: {"HOPSWORKS_API_KEY" in os.environ}')
 
 project = hopsworks.login(project="id2223AirQuality")
+print("Hopsworks login successful")
 
 fs = project.get_feature_store()
 mr = project.get_model_registry()
-
+print("Feature store and modelregistry found")
 
 """Feature pipeline"""
 days_prior=3
 
+print("Will now call get_future")
 feature_update.get_future(fs)
 feature_update.update_historical(fs, days_prior)
 
