@@ -161,6 +161,7 @@ def update_historical_vehicle(yesterday_string, date):
     print(f"Attempting to run make requests for {date}")
     prerequestfiles.make_requests([date])
     print("Done with making requests")
+
     vehicle_df = vehicle_data.get_vehicle_position_data(company, yesterday_string, 0, 23)
 
     vehicle_df["direction_id"] = vehicle_df["direction_id"].astype(bool)
@@ -198,6 +199,7 @@ fs = project.get_feature_store()
 #get_weather_forecast
 #get_dates()
 def update_historical(previous):
+    print("In update_historical vehicle")
     now = datetime.now()
     yesterday = now - timedelta(days = previous)
     day = yesterday.day
@@ -205,8 +207,11 @@ def update_historical(previous):
     year = yesterday.year
 
     yesterday_string = yesterday.strftime("%Y-%m-%d")
+    print(f"The date is set to {yesterday_string}")
     #get_weather(yesterday_string)
+    print("So now we call update historical vehicle")
     update_historical_vehicle(yesterday_string, yesterday)
+    print("And we are back")
     
 
 def get_future():
