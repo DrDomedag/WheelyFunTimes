@@ -240,8 +240,8 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
             archive.extractall(path=temp_dir)
 
         # Iterate through extracted files to find matching ones
-        _prefix = f'{temp_dir}\\{company}\\{feed}\\{data_date.year}\\' \
-                  f'{str(data_date.month).zfill(2)}\\{str(data_date.day).zfill(2)}\\{str(hour).zfill(2)}\\'
+        _prefix = f'{temp_dir}/{company}/{feed}/{data_date.year}/' \
+                  f'{str(data_date.month).zfill(2)}/{str(data_date.day).zfill(2)}/{str(hour).zfill(2)}/'
 
         matching_files = []
         for root, _, files in os.walk(temp_dir):
