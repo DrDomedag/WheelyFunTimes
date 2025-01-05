@@ -46,7 +46,7 @@ else:
 #API_KEY = config_data.get('api_key', '')
 
 #print(pk.geoutils.flat_distance((0.1, 0.01), (0.2, 0.3)))
-
+print(f'Found hopsworks_api_key: {"HOPSWORKS_API_KEY" in os.environ}')
 
 project = hopsworks.login(project="id2223AirQuality")
 
