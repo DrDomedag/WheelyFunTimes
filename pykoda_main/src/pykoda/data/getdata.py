@@ -229,6 +229,12 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
         temp_dir = os.environ["cache_dir"] + "\\extracted_files"
         #temp_dir = config.CACHE_DIR + "\\extracted_files"
 
+        print(f"bz2_file_name: {bz2_file_name}")
+        if os.path.exists(bz2_file_name):
+            print("The file exists.")
+        else:
+            print("The file does not exist.")
+
         # Extract the 7-Zip file
         with py7zr.SevenZipFile(bz2_file_name, mode='r') as archive:
             archive.extractall(path=temp_dir)
