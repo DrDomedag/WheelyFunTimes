@@ -118,7 +118,8 @@ def download_static_file(url, date):
     
 
 def make_requests(dates):
-    
+    print("IN MAKE REQUESTS")
+    print(dates)
     for date in dates:
         date_string = datetime.strftime(date, "%Y-%m-%d")
         print(f"Processing date: {date_string}")

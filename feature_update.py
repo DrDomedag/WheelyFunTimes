@@ -158,8 +158,9 @@ def update_historical_vehicle(yesterday_string, date):
     #Plocka data från koda från igår
     company = "skane"
     
+    print(f"Attempting to run make requests for {date}")
     prerequestfiles.make_requests([date])
-
+    print("Done with making requests")
     vehicle_df = vehicle_data.get_vehicle_position_data(company, yesterday_string, 0, 23)
 
     vehicle_df["direction_id"] = vehicle_df["direction_id"].astype(bool)
@@ -204,14 +205,14 @@ def update_historical(previous):
     year = yesterday.year
 
     yesterday_string = yesterday.strftime("%Y-%m-%d")
-    get_weather(yesterday_string)
+    #get_weather(yesterday_string)
     update_historical_vehicle(yesterday_string, yesterday)
     
 
 def get_future():
-    
-    get_dates()
-    get_vehicle()
+    print("Nothing to do here now")
+    #get_dates()
+    #get_vehicle()
 
 """update_historical()
 get_future()"""
