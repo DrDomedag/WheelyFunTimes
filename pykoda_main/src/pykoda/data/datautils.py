@@ -84,6 +84,7 @@ def get_data_range(feed: str, company: str, start_date: str, start_hour: int = 0
     for date_hour in tqdm.tqdm(pd.date_range(start, end, freq='h'), desc='Loading data'):
         date, time_code = str(date_hour).split()
         hour = int(time_code.split(':')[0])
+        print(f"Date: {date}, hour: {hour}")
         full_path = getdata._get_data_path(company, feed=feed, hour=hour, date=date)
         #print(f"full_path: {full_path}")
         if not os.path.exists(full_path):
@@ -107,13 +108,13 @@ def get_data_range(feed: str, company: str, start_date: str, start_hour: int = 0
             else:
                 df = pd.DataFrame()
 
-        print(f"merge_static {merge_static}")
-        print(f"df.empty {df.empty}")
-        print(df.head())
+        #print(f"merge_static {merge_static}")
+        print(f"Is VehiclePositions empty: {df.empty}")
+        #print(df.head())
         if merge_static and not df.empty:
             this_static = load_static_data(company, date, remove_unused_stations=True)
             if this_static is None:
-                print(f"this_static {this_static}")
+                print(f"this_static is None")
                 continue
 
             if feed == 'TripUpdates':
@@ -148,10 +149,7 @@ def get_data_range(feed: str, company: str, start_date: str, start_hour: int = 0
         # Drop the index, since it will be regenerated when concatenated
         df.drop(columns='index', errors='ignore', inplace=True)
         frames.append(df)
-        print("------------")
-        print("efter append")
-        print(df.head())
-    print(frames)
+    print(f"Length of frames object: {len(frames)}")
     df_merged = pd.concat(frames)
     if 'timestamp' in df_merged.keys():
         df_merged['datetime'] = pd.to_datetime(df_merged.timestamp, unit='s')
