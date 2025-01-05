@@ -192,10 +192,10 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
     # ------------------------------------------------------------------------
     # Download data
     # ------------------------------------------------------------------------
-    ##if config.API_VERSION == 1:
-    #    koda_url = f"https://koda.linkoping-ri.se/KoDa/api/v0.1?company={company}&feed={feed}&date={date}"
-    #else:
-    koda_url = f'https://koda.linkoping-ri.se/KoDa/api/v2/gtfs-rt/{company}/{feed}?date={date}&hour={hour}&key={os.environ["KODA_API_KEY"]}'
+    if config.API_VERSION == 1:
+        koda_url = f"https://koda.linkoping-ri.se/KoDa/api/v0.1?company={company}&feed={feed}&date={date}"
+    else:
+        koda_url = f'https://koda.linkoping-ri.se/KoDa/api/v2/gtfs-rt/{company}/{feed}?date={date}&hour={hour}&key={os.environ["KODA_API_KEY"]}'
     #out_path = f'{os.environ["cache_dir"]}\\' + f'{company}-{feed}-{date}-{hour}.7z'.lower()
     out_path = f'{config.CACHE_DIR}\\' + f'{company}-{feed}-{date}-{hour}.7z'.lower()
     print(out_path)
@@ -246,6 +246,7 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
 
         if len(matching_files) == 0:
             # No matching files. Save an empty file.
+            print("No matching files. Save an empty file.")
             pd.DataFrame().reset_index().to_feather(task.outputs['outfile'])
         else:
             # Process matching files

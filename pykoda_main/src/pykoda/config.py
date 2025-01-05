@@ -28,12 +28,12 @@ print(CACHE_DIR)
 os.makedirs(CACHE_DIR, exist_ok=True)
 
 N_CPU = int(config_data.get('n_cpu', -1))
-#API_KEY = config_data.get('api_key', '')
+API_KEY = config_data.get('api_key', '')
 GTFS_STATIC_KEY = config_data.get('gtfs_static_key', '')
-"""if not API_KEY:
+if not API_KEY:
     _msg = f'Config file {CONFIG_FILE} is missing the api key, please specify the parameter "api_key".' \
            'Falling back to v1 of the API for download.'
     warnings.warn(RuntimeWarning(_msg))
     API_VERSION = 1
 else:
-    API_VERSION = 2"""
+    API_VERSION = 2
