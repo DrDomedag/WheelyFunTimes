@@ -80,9 +80,9 @@ def get_static_data(date: str, company: str, outfolder: (str, None) = None) -> N
     file_type = magic.from_file(file_path)
     mime_type = magic.from_file(file_path, mime=True)
 
-    #print(f"path: {file_path}")
+    print(f"path: {file_path}")
 
-    #print(f"File type: {file_type}")
+    print(f"File type: {file_type}")
     #print(f"MIME type: {mime_type}")
 
     if file_type == "Java archive data (JAR)":

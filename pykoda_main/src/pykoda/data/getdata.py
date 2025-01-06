@@ -87,8 +87,8 @@ def unpack_jsons(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _get_data_path(company: str, feed: str, date: str, hour: (int, str)) -> str:
-    #return f'{os.environ["cache_dir"]}/{company}_{feed}_{date.replace("-", "_")}_{hour}.feather'
-    return f'{config.CACHE_DIR}/{company}_{feed}_{date.replace("-", "_")}_{hour}.feather'
+    return f'{os.environ["cache_dir"]}/{company}_{feed}_{date.replace("-", "_")}_{hour}.feather'
+    #return f'{config.CACHE_DIR}/{company}_{feed}_{date.replace("-", "_")}_{hour}.feather'
 
 
 def _parse_gtfs(gtfsrt: bytes) -> pd.DataFrame:
@@ -197,7 +197,8 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
     else:
         koda_url = f'https://koda.linkoping-ri.se/KoDa/api/v2/gtfs-rt/{company}/{feed}?date={date}&hour={hour}&key={os.environ["KODA_API_KEY"]}'
     #out_path = f'{os.environ["cache_dir"]}\\' + f'{company}-{feed}-{date}-{hour}.7z'.lower()
-    out_path = f'{config.CACHE_DIR}\\' + f'{company}-{feed}-{date}-{hour}.7z'.lower()
+    #out_path = f'{config.CACHE_DIR}\\' + f'{company}-{feed}-{date}-{hour}.7z'.lower()
+    out_path = f'{os.environ["cache_dir"]}/' + f'{company}-{feed}-{date}-{hour}.7z'.lower()
     print(out_path)
     download = ey.func(download_file, inputs={'url': koda_url}, outputs={'file': out_path})
 
@@ -225,16 +226,22 @@ def get_data(date: str, hour: (int, str), feed: str, company: str, output_file: 
         from joblib import Parallel, delayed
 
         # Temporary directory for extracting 7-Zip contents
-        #temp_dir = os.environ["cache_dir"] + "\\extracted_files"
-        temp_dir = config.CACHE_DIR + "\\extracted_files"
+        temp_dir = os.environ["cache_dir"] + "/extracted_files"
+        #temp_dir = config.CACHE_DIR + "\\extracted_files"
+
+        print(f"bz2_file_name: {bz2_file_name}")
+        if os.path.exists(bz2_file_name):
+            print("The file exists.")
+        else:
+            print("The file does not exist.")
 
         # Extract the 7-Zip file
         with py7zr.SevenZipFile(bz2_file_name, mode='r') as archive:
             archive.extractall(path=temp_dir)
 
         # Iterate through extracted files to find matching ones
-        _prefix = f'{temp_dir}\\{company}\\{feed}\\{data_date.year}\\' \
-                  f'{str(data_date.month).zfill(2)}\\{str(data_date.day).zfill(2)}\\{str(hour).zfill(2)}\\'
+        _prefix = f'{temp_dir}/{company}/{feed}/{data_date.year}/' \
+                  f'{str(data_date.month).zfill(2)}/{str(data_date.day).zfill(2)}/{str(hour).zfill(2)}/'
 
         matching_files = []
         for root, _, files in os.walk(temp_dir):
