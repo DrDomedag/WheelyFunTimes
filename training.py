@@ -8,8 +8,8 @@ os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = "python"
 
 #from date_data import get_calendar_data
 #import weather_data
-#from datetime import timedelta, datetime
-#from dateutil.relativedelta import relativedelta
+from datetime import timedelta, datetime
+from dateutil.relativedelta import relativedelta
 import pandas as pd
 #import pykoda_main.src.pykoda as pk
 #import get_static_custom
@@ -25,7 +25,7 @@ from xgboost import XGBClassifier
 from xgboost import plot_importance
 import matplotlib.pyplot as plt
 
-def train(fs, mr, train_test_data_split_time, plot=False):
+def train(fs, mr, plot=False):
     training_data = get_training_data(fs)
 
     training_data = training_data.dropna()
@@ -57,6 +57,10 @@ def train(fs, mr, train_test_data_split_time, plot=False):
     
     #training_data['datetime'] = pd.to_datetime(training_data['datetime'])
     #training_data['datetime'] = training_data['datetime'].tz_localize(None)
+
+    print(training_data.head())
+    training_data.reset_index()
+    print(training_data.head())
     
     split_date = "2024-12-27 00:00:00"
     #split_date = pd.to_datetime("2024-12-27 00:00:00")
@@ -147,6 +151,7 @@ def train(fs, mr, train_test_data_split_time, plot=False):
         model_schema=model_schema,
         input_example=test_features.sample().values, 
         description="Bus occupancy predictor for Skane",
+        version=2
     )
 
     # Saving the model artifacts to the 'air_quality_model' directory in the model registry
@@ -235,7 +240,31 @@ def get_training_data(fs):
 
     #print(weather_date_df.head(10))
 
-    vehicle_df = vehicle_fg.read()
+    print("Attempting to read vehicle_fg")
+    # This doesn't work - it times out once you have a month or so of data.
+    # vehicle_df = vehicle_fg.read()
+
+    periods = 12
+    days_per_period = 5
+    total_days = periods * days_per_period
+
+    now = datetime.now()
+    start_date = now - relativedelta(days=total_days)
+    current_start_date = start_date
+    current_end_date = current_start_date + relativedelta(days=days_per_period)
+    vehicle_df = pd.DataFrame()
+    for i in range(periods):
+        print(f"Attempting to get vehicle data from {current_start_date.strftime('%Y-%m-%d')} to {current_end_date.strftime('%Y-%m-%d')}")
+        vehicle_df = pd.concat([vehicle_df, vehicle_fg.filter((vehicle_fg.datetime >= current_start_date) & (vehicle_fg.datetime <= current_end_date)).read()])
+
+        current_start_date += relativedelta(days=days_per_period)
+        current_end_date += relativedelta(days=days_per_period)
+    
+    print("Finished reading vehicle data.")
+
+    vehicle_df = vehicle_df.drop_duplicates()
+
+    #print("Successfully read vehicle_fg")
     vehicle_df = vehicle_df.sort_values("datetime")
     vehicle_df["datetime"] = pd.to_datetime(vehicle_df["datetime"])
 
