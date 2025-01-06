@@ -25,7 +25,7 @@ from xgboost import XGBClassifier
 from xgboost import plot_importance
 import matplotlib.pyplot as plt
 
-def train(fs, mr, plot=False):
+def train(fs, mr, show_plot=False):
     training_data = get_training_data(fs)
 
     training_data = training_data.dropna()
@@ -63,7 +63,7 @@ def train(fs, mr, plot=False):
     training_data.reset_index()
     print(training_data.head())
     
-    split_date = "2024-12-27 00:00:00"
+    split_date = "2024-12-25 00:00:00" # ~80%
     #split_date = pd.to_datetime("2024-12-27 00:00:00")
     #split_date = np.datetime64(split_date)
 
@@ -121,8 +121,8 @@ def train(fs, mr, plot=False):
     if not os.path.exists(model_dir):
         os.mkdir(model_dir)
 
-    if plot:
-        plot_model(xgb_classifier, model_dir)
+    
+    plot_model(xgb_classifier, model_dir, show_plot)
     
     
     # Save model to Hopsworks
@@ -152,13 +152,13 @@ def train(fs, mr, plot=False):
         model_schema=model_schema,
         input_example=test_features.sample().values, 
         description="Bus occupancy predictor for Skane",
-        version=2
+        version=3
     )
 
     # Saving the model artifacts to the 'air_quality_model' directory in the model registry
     aq_model.save(model_dir)
 
-def plot_model(xgb_regressor, model_dir):
+def plot_model(xgb_regressor, model_dir, show_plot):
     
     
     images_dir = model_dir + "/images"
@@ -176,7 +176,8 @@ def plot_model(xgb_regressor, model_dir):
     plot_importance(xgb_regressor, max_num_features=4)
     feature_importance_path = images_dir + "/feature_importance.png"
     plt.savefig(feature_importance_path)
-    plt.show()
+    if show_plot:
+        plt.show()
     
 
 def get_training_data(fs):
