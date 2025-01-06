@@ -153,7 +153,7 @@ def get_data_range(feed: str, company: str, start_date: str, start_hour: int = 0
     df_merged = pd.concat(frames)
     if 'timestamp' in df_merged.keys():
         df_merged['datetime'] = pd.to_datetime(df_merged.timestamp, unit='s')
-    return df_merged
+    return df_merged, this_static
 
 
 static_data = collections.namedtuple('StaticData', ['stop_times', 'stops', 'trips', 'shapes', 'routes'])

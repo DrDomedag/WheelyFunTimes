@@ -17,7 +17,7 @@ import util
 import prerequestfiles
 
 
-def update_historical_vehicle(fs, yesterday_string, date):
+def get_single_day_vehicle_data(yesterday_string, date):
     #Titta på dagens datum
     #Plocka data från koda från igår
     company = "skane"
@@ -26,13 +26,13 @@ def update_historical_vehicle(fs, yesterday_string, date):
     prerequestfiles.make_requests([date])
     print("Done with making requests")
 
-    vehicle_df = vehicle_data.get_vehicle_position_data(company, yesterday_string, 15, 16)
+    vehicle_df, static_data = vehicle_data.get_vehicle_position_data(company, yesterday_string, 15, 16)
 
     vehicle_df["direction_id"] = vehicle_df["direction_id"].astype(bool)
 
     vehicle_df.info()
     #vehicle_df = vehicle_df.rename(columns={"vehicle_position_latitude":"stop_lat", "vehicle_position_longitude":"stop_lon"})
-    return vehicle_df
+    return vehicle_df, static_data
 
 def get_stops(fs):
     stops_fg = fs.get_feature_group(
@@ -64,14 +64,26 @@ def merge_stop(fs):
     year = yesterday.year
 
     yesterday_string = yesterday.strftime("%Y-%m-%d")
-    buses = update_historical_vehicle(fs, yesterday_string, yesterday)
-    buses = buses[buses["trip_id"]==list(pd.unique(buses["trip_id"]))[200]]
-    buses.info()
-    stops = get_stops(fs)
-    stops.info()
+    vehicle_df, static_data = get_single_day_vehicle_data(yesterday_string, yesterday)
+    test_trip_id = list(pd.unique(vehicle_df["trip_id"]))[200]
+    vehicle_df = vehicle_df[vehicle_df["trip_id"] == test_trip_id]
+    vehicle_df.info()
+    stop_df = get_stops(fs)
+    stop_df.info()
+
+    relevant_stops = static_data.stop_times[static_data.stop_times["trip_id"] == test_trip_id]
+    relevant_stops = relevant_stops.unique("stop_id")
+    
+    relevant_stops = relevant_stops.merge(static_data.stops, on='stop_id', how='left')
+
+    print("Pre-filtering")
+    stop_df.info()
+    stop_df = stop_df[(stop_df["stop_lon"] == relevant_stops["stop_lon"]) & (stop_df["stop_lat"] == relevant_stops["stop_lat"])]
+    print("Post-filtering")
+    stop_df.info()
 
     # Expand each bus and stop into a cross-product
-    bus_stop_pairs = buses.assign(key=1).merge(stops.assign(key=1), on='key').drop('key', axis=1)
+    bus_stop_pairs = vehicle_df.assign(key=1).merge(stop_df.assign(key=1), on='key').drop('key', axis=1)
 
     # Calculate distance for each pair
     bus_stop_pairs['distance'] = bus_stop_pairs.apply(

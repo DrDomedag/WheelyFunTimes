@@ -55,7 +55,7 @@ def backfill_weather(fs, date):
 
 
 def backfill_vehicles(fs, date, start_hour, end_hour):
-    vehicle_df = vehicle_data.get_vehicle_position_data(company, date, start_hour, end_hour)
+    vehicle_df, static_data = vehicle_data.get_vehicle_position_data(company, date, start_hour, end_hour)
     
     vehicle_df["direction_id"] = vehicle_df["direction_id"].astype(bool)
 

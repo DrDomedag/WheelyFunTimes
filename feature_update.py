@@ -171,7 +171,7 @@ def update_historical_vehicle(fs, yesterday_string, date):
     prerequestfiles.make_requests([date])
     print("Done with making requests")
 
-    vehicle_df = vehicle_data.get_vehicle_position_data(company, yesterday_string, 0, 23)
+    vehicle_df, static_data = vehicle_data.get_vehicle_position_data(company, yesterday_string, 0, 23)
 
     vehicle_df["direction_id"] = vehicle_df["direction_id"].astype(bool)
 
