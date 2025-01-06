@@ -8,12 +8,7 @@ import pandas as pd
 import hopsworks
 from datetime import datetime, timedelta
 
-import training
-import feature_update
 import inference
-import visualisation
-import util
-import backfill
 
 
 pd.set_option('display.max_rows', 500)
