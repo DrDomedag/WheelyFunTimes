@@ -29,7 +29,7 @@ def get_weather_forecast(fs):
     version=1,
     )
 
-    weather_fg.insert(weather_data_forecast_df)
+    #weather_fg.insert(weather_data_forecast_df)
 
 
 def get_dates(fs):
@@ -69,32 +69,40 @@ def get_dates(fs):
 
 def get_vehicle(fs): #date: str, company: str, outfolder: (str, None) = None
     date = datetime.now()
-    date = date + timedelta(days=1)
+    #date = date + timedelta(days=1)
     year = date.year
     month = date.month
     day = date.day
 
     date_string = f"{year}-{month}-{day}"
     company = "skane"
-    data = get_static_custom.load_static_data(company, date_string, remove_unused_stations=True)
-    stop_df = data.stop_times
-    stop_df.info()
+    data_today = get_static_custom.load_static_data(company, date_string, remove_unused_stations=True)
+    
+    date = date + timedelta(days=1)
+    year = date.year
+    month = date.month
+    day = date.day
+    date_string = f"{year}-{month}-{day}"
+    data_tomorrow = get_static_custom.load_static_data(company, date_string, remove_unused_stations=True)
+   
+    stop_df = pd.concat([data_today.stop_times, data_tomorrow.stop_times])
+    #stop_df.info()
     stop_df = stop_df.drop(["arrival_time", "stop_headsign", "pickup_type", "drop_off_type", "shape_dist_traveled", "location_type", "parent_station", "platform_code"], axis=1)
-    stop_df.info()
+    #stop_df.info()
     stop_df = stop_df.sort_values(["trip_id", "departure_time"])
-    print(stop_df.head(14))
-    trip_df = data.trips
-    trip_df.info()
+    #print(stop_df.head(14))
+    trip_df = pd.concat([data_today.trips, data_tomorrow.trips])
+    #trip_df.info()
 
     #För stop - pos
     stop_pos_df = stop_df[["stop_name", "stop_lat", "stop_lon"]]
     stop_pos_df = stop_pos_df.drop_duplicates()
 
     trip_df = trip_df.drop(["trip_headsign", "service_id", "shape_id", "agency_id", "route_type", "route_desc"], axis=1)
-    print("trips")
-    trip_df.info()
+    #print("trips")
+    #trip_df.info()
     trip_df['route_id'] = trip_df.index.get_level_values('route_id')
-    trip_df.info()
+    #trip_df.info()
 
     merged_df = trip_df.merge(stop_df, how="left", on="trip_id")
     merged_df.reset_index()
@@ -104,11 +112,9 @@ def get_vehicle(fs): #date: str, company: str, outfolder: (str, None) = None
     
     merged_df = merged_df.rename(columns={"stop_lat":"vehicle_position_latitude", "stop_lon":"vehicle_position_longitude", "departure_time":"datetime"})
 
-    merged_df.info()
+    #merged_df.info()
 
     merged_df["direction_id"] = merged_df["direction_id"].astype(bool)
-
-    # TODO - Töm/radera feature groupen innan så att vi inte har en massa gammal 'future'-data kvar.
 
     util.delete_feature_groups(fs, "vehicle_future")
 
@@ -121,6 +127,9 @@ def get_vehicle(fs): #date: str, company: str, outfolder: (str, None) = None
         event_time="datetime",
         # expectation_suite=weather_expectation_suite
     )
+    merged_df = merged_df.sort_values("datetime")
+    print(merged_df.head())
+    print(merged_df.tail())
     vehicle_fg.insert(merged_df)
 
     #För stop - pos
@@ -150,7 +159,7 @@ def update_historical_weather(fs, date):
         version=1,
     )
     
-    weather_fg.insert(weather_df)
+    #weather_fg.insert(weather_df)
     
 
 def update_historical_vehicle(fs, yesterday_string, date):
@@ -189,7 +198,7 @@ def get_weather(fs, date):
         name='weather',
         version=1,
     )
-    
+    print(weather_df.head())
     weather_fg.insert(weather_df)
 
 
@@ -208,7 +217,7 @@ def update_historical(fs, previous):
 
     yesterday_string = yesterday.strftime("%Y-%m-%d")
     print(f"The date is set to {yesterday_string}")
-    #get_weather(fs, yesterday_string)
+    get_weather(fs, yesterday_string)
     print("So now we call update historical vehicle")
     update_historical_vehicle(fs, yesterday_string, yesterday)
     print("And we are back")
@@ -216,8 +225,8 @@ def update_historical(fs, previous):
 
 def get_future(fs):
     print("Nothing to do here now")
-    #get_dates(fs)
-    #get_vehicle(fs)
+    get_dates(fs)
+    get_vehicle(fs)
 
 """update_historical()
 get_future()"""

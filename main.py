@@ -151,7 +151,7 @@ backfill.backfill_list(fs, dates)
 """Feature pipeline"""
 import feature_update
 feature_update.get_future(fs)
-feature_update.update_historical(fs, 2)
+feature_update.update_historical(fs, 3)
 
 """Training pipeline"""
 #training.train(fs, mr, train_test_data_split_time, plot=False)
