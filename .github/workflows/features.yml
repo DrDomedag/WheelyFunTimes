@@ -2,7 +2,7 @@ name: features
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 9 * * *'
+    - cron: '15 6 * * *'
 
 jobs:
   schedule_pipelines:
