@@ -158,7 +158,7 @@ backfill.backfill_list(fs, dates)
 #training.train(fs, mr, train_test_data_split_time, plot=False)
 
 """Inference pipeline"""
-#result_df = inference.inference(fs, mr)
+result_df = inference.inference(fs, mr)
 
 """Visualisation pipeline"""
 #visualisation.visualise(fs, result_df)
@@ -170,6 +170,6 @@ yesterday = now - timedelta(days = previous)
 yesterday_string = yesterday.strftime("%Y-%m-%d")
 
 feature_update.get_weather(yesterday_string)"""
-import group_position
-group_position.merge_stop(fs)
+#import group_position
+#group_position.merge_stop(fs)
 

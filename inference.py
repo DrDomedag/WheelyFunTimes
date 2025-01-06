@@ -98,7 +98,7 @@ def inference(fs, mr):
 
     pred_df['dag_i_vecka'] = pred_df['dag_i_vecka'].astype('category')
     pred_df['route_long_name'] = pred_df['route_long_name'].astype('category')
-    pred_df['route_id'] = pred_df['route_id'].astype('category')
+    #pred_df['route_id'] = pred_df['route_id'].astype('category')
 
     pred_df["arbetsfri_dag"] = pred_df["arbetsfri_dag"].astype("bool")
     pred_df["holiday"] = pred_df["holiday"].astype("bool")
@@ -113,7 +113,7 @@ def inference(fs, mr):
 
     retrieved_model = mr.get_model(
         name="bus_occupancy_xgboost_model",
-        version=1,
+        version=3,
     )
 
     # Download the saved model artifacts to a local directory

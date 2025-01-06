@@ -16,11 +16,6 @@ pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
 
-# Bestäm var vi vill lagra key
-with open('HOPSWORKS_API_KEY.txt', 'r') as file:
-    os.environ["HOPSWORKS_API_KEY"] = file.read().rstrip()
-
-
 default_config = {
     'api_key': '',
     'cache_dir': appdirs.user_cache_dir('pykoda'),
