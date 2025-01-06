@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 
 
 
+
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
@@ -149,9 +150,9 @@ backfill.backfill_list(fs, dates)
 '''
 
 """Feature pipeline"""
-import feature_update
-feature_update.get_future(fs)
-feature_update.update_historical(fs, 3)
+#import feature_update
+#feature_update.get_future(fs)
+#feature_update.update_historical(fs, 3)
 
 """Training pipeline"""
 #training.train(fs, mr, train_test_data_split_time, plot=False)
@@ -169,4 +170,6 @@ yesterday = now - timedelta(days = previous)
 yesterday_string = yesterday.strftime("%Y-%m-%d")
 
 feature_update.get_weather(yesterday_string)"""
+import group_position
+group_position.merge_stop(fs)
 

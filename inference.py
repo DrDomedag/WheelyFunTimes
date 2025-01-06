@@ -98,6 +98,7 @@ def inference(fs, mr):
 
     pred_df['dag_i_vecka'] = pred_df['dag_i_vecka'].astype('category')
     pred_df['route_long_name'] = pred_df['route_long_name'].astype('category')
+    pred_df['route_id'] = pred_df['route_id'].astype('category')
 
     pred_df["arbetsfri_dag"] = pred_df["arbetsfri_dag"].astype("bool")
     pred_df["holiday"] = pred_df["holiday"].astype("bool")

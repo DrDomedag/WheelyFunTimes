@@ -175,6 +175,8 @@ def update_historical_vehicle(fs, yesterday_string, date):
 
     vehicle_df["direction_id"] = vehicle_df["direction_id"].astype(bool)
 
+    vehicle_df.info()
+
     vehicle_fg = fs.get_feature_group(
     name='vehicle',
     version=1,
