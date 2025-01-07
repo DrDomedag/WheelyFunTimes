@@ -1,0 +1,34 @@
+name: training
+on:
+  workflow_dispatch:
+
+jobs:
+  schedule_pipelines:
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      contents: write
+
+    steps:
+      - name: checkout repo content
+        uses: actions/checkout@v4
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      - name: install python packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: run training pipeline
+        env:
+          HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
+          GTFS_STATIC_KEY: ${{ secrets.GTFS_REGIONAL_STATIC_API_KEY }}
+          KODA_API_KEY: ${{ secrets.KODA_API_KEY }}
+          
+        run: |
+          python run_training.py
