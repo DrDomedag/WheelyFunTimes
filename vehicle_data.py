@@ -7,7 +7,8 @@ def get_vehicle_position_data(company, date, start_hour, end_hour):
     vehicle_position_df, static_data = pk.datautils.get_data_range(feed='VehiclePositions', company=company, start_date=date, start_hour=start_hour, end_hour=end_hour, merge_static=True)
 
     #df2 = df2[["id", "trip_id", "datetime", "route_long_name", "vehicle_occupancyStatus", "direction_id", "stop_sequence", "stop_id"]]
-    vehicle_position_df = vehicle_position_df[["id", "trip_id", "datetime", "vehicle_position_latitude", "vehicle_position_longitude", "route_short_name", "route_long_name", "route_id", "vehicle_occupancyStatus", "direction_id"]]
+    #vehicle_position_df = vehicle_position_df[["id", "trip_id", "datetime", "vehicle_position_latitude", "vehicle_position_longitude", "route_short_name", "route_long_name", "route_id", "vehicle_occupancyStatus", "direction_id"]]
+    vehicle_position_df = vehicle_position_df[["id", "trip_id", "datetime", "vehicle_position_latitude", "vehicle_position_longitude", "route_short_name", "route_long_name", "vehicle_occupancyStatus", "direction_id"]]
 
     vehicle_position_df = vehicle_position_df.sort_values(["trip_id", "datetime"])
 
