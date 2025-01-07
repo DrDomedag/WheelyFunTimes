@@ -48,7 +48,7 @@ else:
 #print(pk.geoutils.flat_distance((0.1, 0.01), (0.2, 0.3)))
 print(f'Found hopsworks_api_key: {"HOPSWORKS_API_KEY" in os.environ}')
 
-import hsfs
+"""import hsfs
 conn = hsfs.connection(
     host='my_instance',                 # DNS of your Feature Store instance
     port=443,                           # Port to reach your Hopsworks instance, defaults to 443
@@ -58,15 +58,15 @@ conn = hsfs.connection(
     engine="python"                     # Set to "spark" if you are using Spark/EMR
 )
 fs = conn.get_feature_store()           # Get the project's default feature store
+"""
 
-
-#project = hopsworks.login(project="id2223AirQuality")
+project = hopsworks.login(project="id2223AirQuality")
 print("Hopsworks login successful")
 
-fs = conn.get_feature_store()           # Get the project's default feature store
-mr = conn.get_model_registry()
-#fs = project.get_feature_store()
-#mr = project.get_model_registry()
+"""fs = conn.get_feature_store()           # Get the project's default feature store
+mr = conn.get_model_registry()"""
+fs = project.get_feature_store()
+mr = project.get_model_registry()
 print("Feature store and modelregistry found")
 
 """Feature pipeline"""
