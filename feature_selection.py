@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import RFE, SelectKBest, mutual_info_classif
 from sklearn.model_selection import train_test_split
+from xgboost import XGBClassifier
 
 def feature_selection(df, target_col, method="importance", n_features=10, model=None):
     """
@@ -60,6 +61,35 @@ def feature_selection(df, target_col, method="importance", n_features=10, model=
     # Return DataFrame with selected features
     return df[top_features + [target_col]]
 
+def show_feature_importance_gain(model):
+    mgb = model.get_booster()
+    importance = mgb.get_score(importance_type="gain")
+    names = list(importance.keys())
+    values = list(importance.values())
+    df = pd.DataFrame({"name":names, "gain_importance":values})
+    df = df.sort_values("gain_importance")
+    print(df.tail(100))  
+    return df
+
+def show_feature_importance_coverage(model):
+    mgb = model.get_booster()
+    importance = mgb.get_score(importance_type="cover")
+    names = list(importance.keys())
+    values = list(importance.values())
+    df = pd.DataFrame({"name":names, "cover_importance":values})
+    df = df.sort_values("cover_importance")
+    print(df.tail(100))
+    return df
+
+def show_feature_importance_total_gain(model):
+    mgb = model.get_booster()
+    importance = mgb.get_score(importance_type="total_gain")
+    names = list(importance.keys())
+    values = list(importance.values())
+    df = pd.DataFrame({"name":names, "total_gain_importance":values})
+    df = df.sort_values("total_gain_importance")
+    print(df.tail(100))
+    return df
 # Example usage:
 # df_selected = feature_selection(df, target_col="target", method="importance", n_features=5)
 
@@ -120,39 +150,143 @@ def evaluate_feature_correlations(df, target_col=None, method="pearson", thresho
 
 
 
-# FEATURE SELECTION EXAMPLE CODE
-# Sample DataFrame
-data = {
-    "feature1": np.random.rand(100),
-    "feature2": np.random.rand(100),
-    "feature3": np.random.rand(100),
-    "feature4": np.random.rand(100),
-    "target": np.random.randint(0, 2, 100),
-}
-df = pd.DataFrame(data)
-
-# Feature Selection Example
-df_selected = feature_selection(df, target_col="target", method="importance", n_features=2)
-print(df_selected.head())
+def feature_selection(df, model):
+    df_selected = feature_selection(df, target_col="target", method="importance", n_features=2, model=model)
+    print(df_selected.head())
 
 
+def correlation_matrix(df):
+
+    # Evaluate feature correlations
+    corr_matrix, target_corr = evaluate_feature_correlations(
+        df, target_col="target", method="pearson", threshold=0.8, display_plot=True
+    )
+
+    # Inspect the correlation matrix
+    print("\nCorrelation Matrix:")
+    print(corr_matrix)
+
+def get_features(mr):
+    retrieved_model = mr.get_model(
+        name="bus_occupancy_xgboost_model",
+        version=3,
+    )
+
+    # Download the saved model artifacts to a local directory
+    saved_model_dir = retrieved_model.download()
+
+    # Loading the XGBoost regressor model and label encoder from the saved model directory
+    # retrieved_xgboost_model = joblib.load(saved_model_dir + "/xgboost_regressor.pkl")
+    retrieved_xgboost_model = XGBClassifier(tree_method="hist", enable_categorical=True)
+
+    retrieved_xgboost_model.load_model(saved_model_dir + "/model.json")
+    
+    gain_df = show_feature_importance_gain(retrieved_xgboost_model)
+    cover_df = show_feature_importance_coverage(retrieved_xgboost_model)
+    total_gain_df = show_feature_importance_total_gain(retrieved_xgboost_model)
+
+        # Merge DataFrames on feature names
+    merged_df = pd.merge(gain_df, total_gain_df, on="name")
+    merged_df = merged_df[merged_df["name"]!="route_long_name"]
+    
+        # Scatter plot
+    plt.figure(figsize=(12, 8))
+    scatter = sns.scatterplot(
+        data=merged_df,
+        x="gain_importance",
+        y="total_gain_importance",
+        size="total_gain_importance",
+        hue="total_gain_importance",
+        palette="viridis",
+        sizes=(20, 200)
+    )
+    
+    # Add labels for each point
+    for i in range(len(merged_df)):
+        plt.text(
+            x=merged_df["gain_importance"].iloc[i],
+            y=merged_df["total_gain_importance"].iloc[i],
+            s=merged_df["name"].iloc[i],
+            fontsize=9,
+            ha='right'
+        )
+    
+    plt.title("Feature Importance: Gain vs Total Gain", fontsize=16)
+    plt.xlabel("Gain Importance", fontsize=14)
+    plt.ylabel("Total Gain Importance", fontsize=14)
+    plt.grid(True)
+    plt.legend(title="Total Gain Importance", bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    # Save the figure
+    plt.savefig("importance_plots/gain_vs_total_gain2.png", dpi=300)
+    plt.show()
+
+    merged_df = pd.merge(cover_df, total_gain_df, on="name")
+    merged_df = merged_df[merged_df["name"]!="route_long_name"]
+        # Scatter plot
+    plt.figure(figsize=(12, 8))
+    scatter = sns.scatterplot(
+        data=merged_df,
+        x="cover_importance",
+        y="total_gain_importance",
+        size="total_gain_importance",
+        hue="total_gain_importance",
+        palette="viridis",
+        sizes=(20, 200)
+    )
+    
+    # Add labels for each point
+    for i in range(len(merged_df)):
+        plt.text(
+            x=merged_df["cover_importance"].iloc[i],
+            y=merged_df["total_gain_importance"].iloc[i],
+            s=merged_df["name"].iloc[i],
+            fontsize=9,
+            ha='right'
+        )
+    
+    plt.title("Feature Importance: Cover vs Total Gain", fontsize=16)
+    plt.xlabel("Cover Importance", fontsize=14)
+    plt.ylabel("Total Gain Importance", fontsize=14)
+    plt.grid(True)
+    plt.legend(title="Total Gain Importance", bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    # Save the figure
+    plt.savefig("importance_plots/cover_vs_total_gain2.png", dpi=300)
+    plt.show()
+
+    merged_df = pd.merge(gain_df, cover_df, on="name")
+    
+        # Scatter plot
+    plt.figure(figsize=(12, 8))
+    scatter = sns.scatterplot(
+        data=merged_df,
+        x="gain_importance",
+        y="cover_importance",
+        size="gain_importance",
+        hue="gain_importance",
+        palette="viridis",
+        sizes=(20, 200)
+    )
+    
+    # Add labels for each point
+    for i in range(len(merged_df)):
+        plt.text(
+            x=merged_df["gain_importance"].iloc[i],
+            y=merged_df["cover_importance"].iloc[i],
+            s=merged_df["name"].iloc[i],
+            fontsize=9,
+            ha='right'
+        )
+    
+    plt.title("Feature Importance: Gain vs Cover", fontsize=16)
+    plt.xlabel("Gain Importance", fontsize=14)
+    plt.ylabel("Cover Importance", fontsize=14)
+    plt.grid(True)
+    plt.legend(title="Cover Importance", bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    # Save the figure
+    plt.savefig("importance_plots/gain_vs_cover.png", dpi=300)
+    plt.show()
 
 
-# CORRELATION MATRIX EXAMPLE CODE
-# Sample DataFrame
-data = {
-    "feature1": [1, 2, 3, 4, 5],
-    "feature2": [5, 4, 3, 2, 1],
-    "feature3": [1, 3, 5, 7, 9],
-    "target": [0, 1, 0, 1, 0],
-}
-df = pd.DataFrame(data)
-
-# Evaluate feature correlations
-corr_matrix, target_corr = evaluate_feature_correlations(
-    df, target_col="target", method="pearson", threshold=0.8, display_plot=True
-)
-
-# Inspect the correlation matrix
-print("\nCorrelation Matrix:")
-print(corr_matrix)

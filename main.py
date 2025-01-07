@@ -10,8 +10,6 @@ from datetime import datetime, timedelta
 
 
 
-
-
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
@@ -59,11 +57,12 @@ os.environ["GTFS_STATIC_KEY"] = GTFS_STATIC_KEY
 #print(pk.geoutils.flat_distance((0.1, 0.01), (0.2, 0.3)))
 
 
-import training
+#import training
 import inference
 import visualisation
 import util
 import backfill
+import feature_selection
 
 
 project = hopsworks.login(project="id2223AirQuality")
@@ -154,11 +153,11 @@ backfill.backfill_list(fs, dates)
 #feature_update.update_historical(fs, 3)
 
 """Training pipeline"""
-train_from_local_data = True
-training.train(fs, mr, show_plot=False, train_from_local_data=train_from_local_data, upload_model=False)
+#train_from_local_data = True
+#training.train(fs, mr, show_plot=False, train_from_local_data=train_from_local_data, upload_model=False)
 
 """Inference pipeline"""
-result_df = inference.inference(fs, mr)
+#result_df = inference.inference(fs, mr)
 
 """Visualisation pipeline"""
 #visualisation.visualise(fs, result_df)
@@ -172,4 +171,7 @@ yesterday_string = yesterday.strftime("%Y-%m-%d")
 feature_update.get_weather(yesterday_string)"""
 #import group_position
 #group_position.merge_stop(fs)
+
+#Get the most imprtance features
+feature_selection.get_features(mr)
 
