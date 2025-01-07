@@ -20,13 +20,17 @@ import pandas as pd
 from hsml.schema import Schema
 from hsml.model_schema import ModelSchema
 
-from sklearn.metrics import mean_squared_error, r2_score
-from xgboost import XGBClassifier
-from xgboost import plot_importance
+from sklearn.metrics import log_loss, r2_score, accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+import xgboost as xgb
 import matplotlib.pyplot as plt
+from hyperopt import fmin, tpe, hp
 
-def train(fs, mr, show_plot=False):
-    training_data = get_training_data(fs)
+def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=True):
+    if train_from_local_data:
+        training_data = pd.read_csv(os.environ["cache_dir"] + '/training_data.csv')
+    else:
+        training_data = get_training_data(fs)
+    
 
     training_data = training_data.dropna()
 
@@ -45,7 +49,7 @@ def train(fs, mr, show_plot=False):
 
     training_data['dag_i_vecka'] = training_data['dag_i_vecka'].astype('category')
     training_data['route_long_name'] = training_data['route_long_name'].astype('category')
-    training_data['route_id'] = training_data['route_id'].astype('category')
+    #training_data['route_id'] = training_data['route_id'].astype('category')
 
     training_data['vehicle_occupancy_status'] = training_data['vehicle_occupancy_status'].astype('int')
     training_data["arbetsfri_dag"] = training_data["arbetsfri_dag"].astype("bool")
@@ -59,9 +63,6 @@ def train(fs, mr, show_plot=False):
     #training_data['datetime'] = pd.to_datetime(training_data['datetime'])
     #training_data['datetime'] = training_data['datetime'].tz_localize(None)
 
-    print(training_data.head())
-    training_data.reset_index()
-    print(training_data.head())
     
     split_date = "2024-12-25 00:00:00" # ~80%
     #split_date = pd.to_datetime("2024-12-27 00:00:00")
@@ -76,21 +77,27 @@ def train(fs, mr, show_plot=False):
     train_labels = pd.DataFrame(df_training['vehicle_occupancy_status'])
     test_labels = pd.DataFrame(df_test['vehicle_occupancy_status'])
     
-    train_features.info()
-    test_features.info()
-    train_labels.info()
-    test_labels.info()
-
-    print(train_labels['vehicle_occupancy_status'].isna().sum())
-    print(test_labels['vehicle_occupancy_status'].isna().sum())
-
-    print(train_features.head())
-    print(test_features.head())
-    print(train_labels.head())
-    print(test_labels.head())
-
     # Creating an instance of the XGBoost Regressor
-    xgb_classifier = XGBClassifier(tree_method="hist", enable_categorical=True)
+    xgb_classifier = xgb.XGBClassifier(tree_method="hist", enable_categorical=True)
+
+    # Define the hyperparameter space
+    space = {
+        'max_depth': hp.quniform('max_depth', 2, 8, 1),
+        'learning_rate': hp.loguniform('learning_rate', -5, -2),
+        'subsample': hp.uniform('subsample', 0.5, 1)
+    }
+
+    # Define the objective function to minimize
+    def objective(params):
+        xgb_model = xgb_classifier
+        xgb_model.fit(train_features, train_labels)
+        y_pred = xgb_model.predict(test_features)
+        score = accuracy_score(test_labels, y_pred)
+        return {'loss': -score, 'status': "ok"}
+
+    # Perform the optimization
+    best_params = fmin(objective, space, algo=tpe.suggest, max_evals=100)
+    print("Best set of hyperparameters: ", best_params)
 
     # Fitting the XGBoost Regressor to the training data
     xgb_classifier.fit(train_features, train_labels)
@@ -99,12 +106,12 @@ def train(fs, mr, show_plot=False):
     predicted_labels = xgb_classifier.predict(test_features)
 
     # Calculating Mean Squared Error (MSE) using sklearn
-    mse = mean_squared_error(test_labels.iloc[:,0], predicted_labels)
-    print("MSE:", mse)
-
-    # Calculating R squared using sklearn
-    r2 = r2_score(test_labels.iloc[:,0], predicted_labels)
-    print("R squared:", r2)
+    
+    accuracy = accuracy_score(test_labels, predicted_labels)
+    precision = precision_score(test_labels, predicted_labels, average='weighted')
+    recall = recall_score(test_labels, predicted_labels, average='weighted')
+    f1 = f1_score(test_labels, predicted_labels, average='weighted')
+    print(f"Accuracy: {accuracy}, precision: {precision}, recall: {recall}, f1 score: {f1}")
 
     result_df = test_labels
     result_df["vehicle_occupancyStatus"] = predicted_labels
@@ -139,24 +146,27 @@ def train(fs, mr, show_plot=False):
     # Saving the XGBoost regressor object as a json file in the model directory
     
     xgb_classifier.save_model(model_dir + "/model.json")
-    res_dict = { 
-            "MSE": str(mse),
-            "R squared": str(r2),
+    res_dict = {
+            "Accuracy": str(accuracy),
+            "Precision": str(precision),
+            "Recall": str(recall),
+            "F1_score": str(f1)
         }
 
-    # Creating a Python model in the model registry named 'air_quality_xgboost_model'
+    if upload_model:
+        # Creating a Python model in the model registry named 'air_quality_xgboost_model'
 
-    aq_model = mr.python.create_model(
-        name="bus_occupancy_xgboost_model", 
-        metrics= res_dict,
-        model_schema=model_schema,
-        input_example=test_features.sample().values, 
-        description="Bus occupancy predictor for Skane",
-        version=3
-    )
+        aq_model = mr.python.create_model(
+            name="bus_occupancy_xgboost_model", 
+            metrics= res_dict,
+            model_schema=model_schema,
+            input_example=test_features.sample().values, 
+            description="Bus occupancy predictor for Skane",
+            version=4
+        )
 
-    # Saving the model artifacts to the 'air_quality_model' directory in the model registry
-    aq_model.save(model_dir)
+        # Saving the model artifacts to the 'air_quality_model' directory in the model registry
+        aq_model.save(model_dir)
 
 def plot_model(xgb_regressor, model_dir, show_plot):
     

@@ -17,7 +17,6 @@ pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
 
-# Bestäm var vi vill lagra key
 with open('HOPSWORKS_API_KEY.txt', 'r') as file:
     os.environ["HOPSWORKS_API_KEY"] = file.read().rstrip()
 
@@ -95,7 +94,7 @@ result_df = None
 
 
 """Data request pipeline"""
-import prerequestfiles
+#import prerequestfiles
 
 """dates = []
 for i in range(31):
@@ -155,7 +154,8 @@ backfill.backfill_list(fs, dates)
 #feature_update.update_historical(fs, 3)
 
 """Training pipeline"""
-#training.train(fs, mr, train_test_data_split_time, plot=False)
+train_from_local_data = True
+training.train(fs, mr, show_plot=False, train_from_local_data=train_from_local_data, upload_model=False)
 
 """Inference pipeline"""
 result_df = inference.inference(fs, mr)
