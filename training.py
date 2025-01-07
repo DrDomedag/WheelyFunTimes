@@ -96,7 +96,7 @@ def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=Tru
         return {'loss': -score, 'status': "ok"}
 
     # Perform the optimization
-    best_params = fmin(objective, space, algo=tpe.suggest, max_evals=100)
+    best_params = fmin(objective, space, algo=tpe.suggest, max_evals=10)
     print("Best set of hyperparameters: ", best_params)
 
     # Fitting the XGBoost Regressor to the training data
@@ -183,7 +183,7 @@ def plot_model(xgb_regressor, model_dir, show_plot):
     '''
     
     # Plotting feature importances using the plot_importance function from XGBoost
-    plot_importance(xgb_regressor, max_num_features=4)
+    xgb.plot_importance(xgb_regressor, max_num_features=4)
     feature_importance_path = images_dir + "/feature_importance.png"
     plt.savefig(feature_importance_path)
     if show_plot:
