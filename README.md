@@ -3,14 +3,22 @@
 Have you ever been packed like a sardine into a bus, a suitcase in your ribs and an elbow in your ear, thinking “if only I had known, I would have taken the subway instead”? Well, fear not - the Wheely Fun Times team is here with a solution for all your bus occupancy status forecast needs. Connect using the latest AI technology and never ride an overcrowded bus again!
 
 ## Table of contents
-Introduction and overview
-Team introduction
-Prediction problem
-Data
-Architecture
-Model
-Feature Engineering
-GUI
+
+[Introduction and overview](#introduction-and-overview)
+
+[Team introduction](#team-introduction)
+
+[Prediction problem](#prediction-problem)
+
+[Data](#data)
+
+[Architecture](#architecture)
+
+[Model](#model)
+
+[Feature Engineering](#feature-engineering)
+
+[GUI](#gui)
 
 ## Introduction and overview
 This project was carried out as part of the course ID2223 - Scalable Machine Learning at KTH. The project objective was to create a serverless machine learning solution for a real-world problem using a live updating data source. After discussing various options and problems that machine learning could help alleviate, we decided to focus on predicting the occupancy status of buses in traffic. There are certainly people who would rather walk or take the subway if the bus is overly crowded, and accurate predictions could also help companies engaged in public transport in planning their traffic. There is also data available through the traffic operators that would provide us with a ground truth to train a machine learning model. To strengthen the model’s predictive power, we also consider data from the two factors we deemed likely to have the greatest and most consistent impact on occupancy: the calendar and the weather. To finally make the model’s predictions available for public consideration and utilisation, we developed a UI where they can be viewed, available here.
@@ -39,6 +47,7 @@ A limitation with the data used to train our model is that it is only from one m
 In addition to long-term historical data used for model training, the daily feature pipeline fetches yesterday’s historical weather and vehicle data as well as weather predictions for today and tomorrow, the schedule for the vehicles today and tomorrow (as much as available), and the calendar data. The weather forecast and vehicle schedule data is used for inference, and the historical parts are added to long-term storage for the training of future model versions. There are approximately 1 000 000 predictions made for two days.
 
 ## Architecture
+![architecture](https://github.com/user-attachments/assets/9e3d9f34-e345-4df8-a7b1-fa8b8ca8db59)
 
 **Figure X:** An overview of the project’s software architecture
 
@@ -64,7 +73,11 @@ We did a correlation matrix to find if there were any features with high correla
 
 We also tested the importance for the features in the model (gain, total gain, cover and total cover), and some of the results can be seen in Figure X. 
 
-![total_gain_vs_total_cover](https://github.com/user-attachments/assets/111ebb80-a1db-4f59-abf2-502dbcd52631) 
+
+<p float="left">
+  <img src="https://github.com/user-attachments/assets/111ebb80-a1db-4f59-abf2-502dbcd52631" width="500" />
+  <img src="https://github.com/user-attachments/assets/caf749f9-8524-448a-b551-7a9e64241ae3" width="500" /> 
+</p>
 
 
 **Figure X:** Total Gain vs. Total Cover and Gain vs. Total Gain - note that the bus route name feature has been excluded, as its importance on all axes was so great that the other points ended up indistinguishable in one corner.
