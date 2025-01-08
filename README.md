@@ -56,11 +56,15 @@ Suitable model parameters were found using the RandomizedSearchCV class from sci
 ## Feature engineering
 We did a correlation matrix to find if there were any features with high correlation that could be removed from the model. The matrix mainly indicated high correlation between the different day-features, and we decided to remove the features indicating the day of the week, whether the day was a holiday and whether it was an informal holiday or a bank holiday. Each correlated significantly to the others, and notably to the feature indicating whether the day was a labour-free day, which was kept to maintain this information.
 
+![Figure_1](https://github.com/user-attachments/assets/f2dd9d29-49e0-4f8f-9722-f8f09a1d883f)
+
 **Figure X:** Correlation matrix for all of the model’s features. The “Unknown” feature is a duplicate of the datetime feature, and neither was used in training.
 
 
 
 We also tested the importance for the features in the model (gain, total gain, cover and total cover), and some of the results can be seen in Figure X. 
+
+![total_gain_vs_total_cover](https://github.com/user-attachments/assets/111ebb80-a1db-4f59-abf2-502dbcd52631) 
 
 
 **Figure X:** Total Gain vs. Total Cover and Gain vs. Total Gain - note that the bus route name feature has been excluded, as its importance on all axes was so great that the other points ended up indistinguishable in one corner.
