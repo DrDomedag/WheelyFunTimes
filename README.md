@@ -36,7 +36,7 @@ The data used has been collected from four distinct APIs:
 
 **Svenska Dagar API 2.1** - Used to collect calendar data such as which day of the week it is, whether a given day is a Swedish holiday, etc.
 
-**KoDa - Kollektivtrafikens Datalab** - Used to collect historical data about the vehicles. Each vehicle gives multiple updates throughout its trip, such as occupancy status, position, route name etc. The data contains information from routes across the whole Skåne Region.
+**KoDa - Kollektivtrafikens Datalab** - Used to collect historical data about the vehicles. Each vehicle gives multiple updates throughout its trip, such as occupancy status, position, route name etc. The data contains information from routes across the whole Skåne Region. The files are prepared upon request, and downloading large amounts of data is therefore time consuming.
 
 **GTFS Regional** - Real time data on buses. Used to collect predicted bus trips today and (part of) tomorrow. The data contains information from routes across the whole Skåne Region.
 
