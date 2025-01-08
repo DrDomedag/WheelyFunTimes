@@ -1,8 +1,11 @@
 import os
+
+os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = "python"
+
 import hopsworks
 import appdirs
 import configparser
-
+import pandas as pd
 
 with open('HOPSWORKS_API_KEY.txt', 'r') as file:
     os.environ["HOPSWORKS_API_KEY"] = file.read().rstrip()
@@ -43,7 +46,7 @@ os.environ["KODA_API_KEY"] = KODA_API_KEY
 os.environ["GTFS_STATIC_KEY"] = GTFS_STATIC_KEY
 
 
-
+'''
 project = hopsworks.login(project="id2223AirQuality")
 
 fs = project.get_feature_store()
@@ -52,3 +55,24 @@ import training
 df = training.get_training_data(fs)
 filepath = CACHE_DIR + "/training_data.csv"
 df.to_csv(filepath, sep=',', index=True, header=True, encoding=None)
+'''
+
+import pykoda_main.src.pykoda.data.datautils as datautils
+from datetime import datetime
+
+dfs = []
+
+for day in range(31):
+    date = datetime(year=2024, month=12, day=(day+1))
+    date = date.strftime("%Y-%m-%d")
+    static_data = datautils.load_static_data(company="skane", date=date, remove_unused_stations=True)
+    dfs.append(static_data.stop_times)
+
+stop_times_df = pd.concat(dfs, ignore_index=False)
+
+stop_times_df = stop_times_df.reset_index()
+
+stop_times_df = stop_times_df[["trip_id", "stop_name", "stop_lat", "stop_lon"]]
+
+filepath = CACHE_DIR + "/stop_times.csv"
+stop_times_df.to_csv(filepath, sep=',', index=True, header=True, encoding=None)

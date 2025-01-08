@@ -54,27 +54,30 @@ def haversine(lat1, lon1, lat2, lon2):
     c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
     return R * c
 
+def merge_all_stops(vehicle_df, stop_df):
+    unique_trip_ids = list(vehicle_df["trip_id"].unique())
+
+    final_df = pd.DataFrame()
+    for trip_id in unique_trip_ids:
+        result_df = merge_stop(trip_id, vehicle_df, stop_df)
+        final_df = pd.concat(final_df, result_df, axis=1)
+    
+    return final_df
+
 #get_weather_forecast
 #get_dates()
-def merge_stop(fs):
-    now = datetime.now()
-    yesterday = now - timedelta(days = 5)
-    day = yesterday.day
-    month = yesterday.month
-    year = yesterday.year
-
-    yesterday_string = yesterday.strftime("%Y-%m-%d")
-    vehicle_df, static_data = get_single_day_vehicle_data(yesterday_string, yesterday)
-    test_trip_id = list(pd.unique(vehicle_df["trip_id"]))[2000]
-    print(len(test_trip_id))
-    vehicle_df = vehicle_df[vehicle_df["trip_id"] == test_trip_id]
+def merge_stop(trip_id, vehicle_df, stop_df):
+    
+    vehicle_df = vehicle_df[vehicle_df["trip_id"] == trip_id]
     #vehicle_df.info()
     #stop_df = get_stops(fs)
     #stop_df.info()
 
-    stop_times = static_data.stop_times.reset_index()
+    stop_df = stop_df.reset_index()
 
-    relevant_stops = stop_times[stop_times["trip_id"] == test_trip_id]
+    stop_df = stop_df["stop_name", "stop_lat", "stop_lon", "trip_id"]
+
+    relevant_stops = stop_df[stop_df["trip_id"] == trip_id]
     #relevant_stops = relevant_stops.unique("stop_id")
     
     #relevant_stops = relevant_stops.merge(static_data.stops, on='stop_id', how='left')
@@ -103,24 +106,29 @@ def merge_stop(fs):
     #print(specific[["stop_name", "stop_lat", "vehicle_position_latitude", "stop_lon", "vehicle_position_longitude", "distance"]].head(20))
     # Find the closest bus for each stop
 
-    closest_buses = bus_stop_pairs.loc[bus_stop_pairs.groupby('stop_name').distance.idxmin()]
+    result = bus_stop_pairs.loc[bus_stop_pairs.groupby('stop_name').distance.idxmin()]
 
-
-    # Clean up the resulting dataframe
-    result = closest_buses.rename(columns={
-        'vehicle_position_latitude': 'bus_latitude',
-        'vehicle_position_longitude': 'bus_longitude',
-        'stop_lat': 'stop_latitude',
-        'stop_lon': 'stop_longitude',
-    })
-
-    # Välj ut rätt data
-    result = result[['stop_name', 'stop_latitude', 'stop_longitude', 'trip_id_x', 'bus_latitude', 'bus_longitude', 'distance']]
-
-    print("Result")
     result.info()
     print(result.head())
 
+    result = result.rename(columns={"trip_id_x": "trip_id"})
+
+    # Välj ut rätt data
+    #result = result[['stop_name', 'stop_latitude', 'stop_longitude', 'trip_id_x', 'bus_latitude', 'bus_longitude', 'distance']]
+    threshold = 1.0
+    print(f"Maximum distance: {result['distance'].max()}, number of distances > {threshold}: {(result['distance'] > threshold).sum()}")
+
+    result = result[result['distance'] < threshold]
+
+    result = result.drop(['distance', 'stop_lat', 'stop_lon', "trip_id_y", "stop_id"], axis=1)
+
+    return result
+
+
+
+
+
+'''
 # Function to calculate the closest vehicle for each stop
 def find_closest_vehicle(stops, vehicles):
     closest_rows = []
@@ -167,3 +175,5 @@ def test(fs):
     result_df.info()
     
     print(result_df.head(20))
+
+'''

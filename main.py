@@ -152,9 +152,9 @@ backfill.backfill_list(fs, dates)
 #feature_update.update_historical(fs, 3)
 
 """Training pipeline"""
-#import training
-#train_from_local_data = True
-#training.train(fs, mr, show_plot=False, train_from_local_data=train_from_local_data, upload_model=True, do_random_hyperparameter_search=False)
+import training
+train_from_local_data = True
+training.train(fs, mr, show_plot=False, train_from_local_data=train_from_local_data, upload_model=True, do_random_hyperparameter_search=False)
 
 """Inference pipeline"""
 #result_df = inference.inference(fs, mr)
@@ -169,8 +169,8 @@ yesterday = now - timedelta(days = previous)
 yesterday_string = yesterday.strftime("%Y-%m-%d")
 
 feature_update.get_weather(yesterday_string)"""
-import group_position
-group_position.merge_stop(fs)
+#import group_position
+#group_position.merge_stop(fs)
 #group_position.test(fs)
 
 #Get the most imprtance features

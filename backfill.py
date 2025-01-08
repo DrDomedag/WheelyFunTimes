@@ -3,6 +3,7 @@ import weather_data
 from date_data import get_calendar_data
 import pandas as pd
 from datetime import datetime, timedelta
+import pykoda_main.src.pykoda.data.datautils as datautils
 
 city = "Malmö"
 latitude = 55.3535
@@ -70,6 +71,32 @@ def backfill_vehicles(fs, date, start_hour, end_hour):
 
     vehicle_fg.insert(vehicle_df)
 
+def backfill_stop_times(fs, date):
+    dfs = []
+
+    for day in range(31):
+        date = datetime(year=2024, month=12, day=(day+1))
+        date = date.strftime("%Y-%m-%d")
+        static_data = datautils.load_static_data(company="skane", date=date, remove_unused_stations=True)
+        dfs.append(static_data.stop_times)
+
+    stop_times_df = pd.concat(dfs, ignore_index=False)
+
+    stop_times_df = stop_times_df.reset_index()
+
+    stop_times_df = stop_times_df[["stop_name", "stop_lat", "stop_lon", "trip_id"]]
+
+    stop_times_fg = fs.get_or_create_feature_group(
+        name='stop_times',
+        description='Data on stop times',
+        version=1,
+        primary_key=['trip_id', 'stop_id'],
+        event_time="datetime",
+        # expectation_suite=weather_expectation_suite
+    )
+
+    stop_times_fg.insert(stop_times_df)
+
 
 def backfill(fs, start_date, days):
     
@@ -109,6 +136,7 @@ def backfill_single_date(fs, date):
     backfill_dates(fs, year, month, day)
     backfill_weather(fs, date)
     backfill_vehicles(fs, date, start_hour, end_hour)
+    backfill_stop_times(fs, date)
 
 
 

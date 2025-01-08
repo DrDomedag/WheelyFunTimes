@@ -28,14 +28,35 @@ from hyperopt import fmin, tpe, hp
 from sklearn.model_selection import RandomizedSearchCV
 import scipy.stats as stats
 
+import group_position
+
+def get_stop_time_data(fs):
+    stop_time_data_fg = fs.get_feature_group(
+        name="stop_times",
+        version=1,
+    )
+
+    stop_time_df = stop_time_data_fg.read()
+
+    return stop_time_df
+
 def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=True, do_random_hyperparameter_search=False):
     if train_from_local_data:
         training_data = pd.read_csv(os.environ["cache_dir"] + '/training_data.csv')
+        stop_data = pd.read_csv(os.environ["cache_dir"] + '/stop_times.csv')
     else:
         training_data = get_training_data(fs)
+        stop_data = get_stop_time_data(fs)
     
+    stop_data = stop_data[["trip_id", "stop_name", "stop_lat", "stop_lon"]]
 
     training_data = training_data.dropna()
+
+    training_data = group_position.merge_all_stops(training_data, stop_data)
+
+    print("Merged training data")
+    training_data.info()
+    print(training_data.head())
 
     # Create a mapping dictionary
     availability_mapping = {
@@ -61,6 +82,8 @@ def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=Tru
     training_data["squeeze_day"] = training_data["squeeze_day"].astype("bool")
     training_data["helgdagsafton"] = training_data["helgdagsafton"].astype("bool")
     training_data["day_before_holiday"] = training_data["day_before_holiday"].astype("bool")
+    
+    training_data["stop_name"] = training_data["stop_name"].astype("category")
     #training_data["arbetsfri_dag"] = training_data["arbetsfri_dag"].astype("bool")
     
     #training_data['datetime'] = pd.to_datetime(training_data['datetime'])
@@ -194,7 +217,7 @@ def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=Tru
             model_schema=model_schema,
             input_example=test_features.sample().values, 
             description="Bus occupancy predictor for Skane",
-            version=6
+            version=9
         )
 
         # Saving the model artifacts to the 'air_quality_model' directory in the model registry
