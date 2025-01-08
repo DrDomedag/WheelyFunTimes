@@ -49,7 +49,7 @@ In addition to long-term historical data used for model training, the daily feat
 ## Architecture
 ![architecture](https://github.com/user-attachments/assets/9e3d9f34-e345-4df8-a7b1-fa8b8ca8db59)
 
-**Figure 1:** An overview of the project’s software architecture
+**Figure 1:** An overview of the project’s software architecture.
 
 ### Pipelines
 Backfill - Loads historical vehicle, weather and calendar data for a desired period of time. The data is cleaned and uploaded into separate feature groups in Hugging Face.
