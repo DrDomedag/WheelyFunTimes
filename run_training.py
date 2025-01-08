@@ -69,6 +69,6 @@ train_test_data_split_time = f"{year}-{month}-{day}"
 result_df = None
 
 """Training pipeline"""
-#training.train(fs, mr, train_test_data_split_time, plot=False)
+training.train(fs, mr, train_from_local_data=False, plot=False)
 
 

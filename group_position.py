@@ -67,23 +67,25 @@ def merge_stop(fs):
     vehicle_df, static_data = get_single_day_vehicle_data(yesterday_string, yesterday)
     test_trip_id = list(pd.unique(vehicle_df["trip_id"]))[200]
     vehicle_df = vehicle_df[vehicle_df["trip_id"] == test_trip_id]
-    vehicle_df.info()
-    stop_df = get_stops(fs)
-    stop_df.info()
+    #vehicle_df.info()
+    #stop_df = get_stops(fs)
+    #stop_df.info()
 
     relevant_stops = static_data.stop_times[static_data.stop_times["trip_id"] == test_trip_id]
-    relevant_stops = relevant_stops.unique("stop_id")
+    #relevant_stops = relevant_stops.unique("stop_id")
     
     relevant_stops = relevant_stops.merge(static_data.stops, on='stop_id', how='left')
 
+    '''
     print("Pre-filtering")
     stop_df.info()
     stop_df = stop_df[(stop_df["stop_lon"] == relevant_stops["stop_lon"]) & (stop_df["stop_lat"] == relevant_stops["stop_lat"])]
     print("Post-filtering")
     stop_df.info()
+    '''
 
     # Expand each bus and stop into a cross-product
-    bus_stop_pairs = vehicle_df.assign(key=1).merge(stop_df.assign(key=1), on='key').drop('key', axis=1)
+    bus_stop_pairs = vehicle_df.assign(key=1).merge(relevant_stops.assign(key=1), on='key').drop('key', axis=1)
 
     # Calculate distance for each pair
     bus_stop_pairs['distance'] = bus_stop_pairs.apply(
@@ -102,6 +104,7 @@ def merge_stop(fs):
         'stop_lon': 'stop_longitude',
     })
 
+    # Välj ut rätt data
     result = result[['stop_name', 'stop_latitude', 'stop_longitude', 'trip_id', 'bus_latitude', 'bus_longitude', 'distance']]
 
     print("Result")

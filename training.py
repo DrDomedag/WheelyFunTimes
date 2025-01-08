@@ -25,7 +25,10 @@ import xgboost as xgb
 import matplotlib.pyplot as plt
 from hyperopt import fmin, tpe, hp
 
-def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=True):
+from sklearn.model_selection import RandomizedSearchCV
+import scipy.stats as stats
+
+def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=True, do_random_hyperparameter_search=False):
     if train_from_local_data:
         training_data = pd.read_csv(os.environ["cache_dir"] + '/training_data.csv')
     else:
@@ -63,6 +66,11 @@ def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=Tru
     #training_data['datetime'] = pd.to_datetime(training_data['datetime'])
     #training_data['datetime'] = training_data['datetime'].tz_localize(None)
 
+    # Dropping data ruled to be less valuable based on the correlation matrix:
+    training_data = training_data.drop(["holiday", "dag_i_vecka", "helgdag"], axis=1)
+
+    # Dropping data ruled to be less valuable based on the importance metrics:
+    training_data = training_data.drop(["direction_id", "minute"], axis=1)
     
     split_date = "2024-12-25 00:00:00" # ~80%
     #split_date = pd.to_datetime("2024-12-27 00:00:00")
@@ -77,9 +85,32 @@ def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=Tru
     train_labels = pd.DataFrame(df_training['vehicle_occupancy_status'])
     test_labels = pd.DataFrame(df_test['vehicle_occupancy_status'])
     
-    # Creating an instance of the XGBoost Regressor
-    xgb_classifier = xgb.XGBClassifier(tree_method="hist", enable_categorical=True)
 
+    # Creating an instance of the XGBoost Regressor
+    xgb_classifier = xgb.XGBClassifier(tree_method="hist", enable_categorical=True, max_depth=7, learning_rate=0.019560161016355875, n_estimators=140, subsample=0.5611232876266021)
+
+    if do_random_hyperparameter_search:
+        # Define the hyperparameter distributions
+        param_dist = {
+        'max_depth': stats.randint(3, 10),
+        'learning_rate': stats.uniform(0.01, 0.1),
+        'subsample': stats.uniform(0.5, 0.5),
+        'n_estimators':stats.randint(50, 200)
+        }
+
+        # Create the RandomizedSearchCV object
+        random_search = RandomizedSearchCV(xgb_classifier, param_distributions=param_dist, n_iter=10, cv=5, scoring='accuracy')
+
+        # Fit the RandomizedSearchCV object to the training data
+        random_search.fit(train_features, train_labels)
+
+        # Print the best set of hyperparameters and the corresponding score
+        print("Best set of hyperparameters: ", random_search.best_params_)
+        print("Best score: ", random_search.best_score_)
+
+
+    '''
+    # --- Bayesian optimization
     # Define the hyperparameter space
     space = {
         'max_depth': hp.quniform('max_depth', 2, 8, 1),
@@ -98,6 +129,7 @@ def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=Tru
     # Perform the optimization
     best_params = fmin(objective, space, algo=tpe.suggest, max_evals=10)
     print("Best set of hyperparameters: ", best_params)
+    '''
 
     # Fitting the XGBoost Regressor to the training data
     xgb_classifier.fit(train_features, train_labels)
@@ -162,7 +194,7 @@ def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=Tru
             model_schema=model_schema,
             input_example=test_features.sample().values, 
             description="Bus occupancy predictor for Skane",
-            version=4
+            version=6
         )
 
         # Saving the model artifacts to the 'air_quality_model' directory in the model registry

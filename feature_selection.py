@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
@@ -128,6 +129,10 @@ def evaluate_feature_correlations(df, target_col=None, method="pearson", thresho
             annot_kws={"size": 8}
         )
         plt.title(f"Feature Correlation Heatmap ({method.capitalize()})")
+
+        
+        plt.savefig("correlation_matrix.png", bbox_inches='tight')
+
         plt.show()
 
     # Find highly correlated features
@@ -158,7 +163,7 @@ def feature_selection(df, model):
 def correlation_matrix(df):
 
     # Evaluate feature correlations
-    corr_matrix, target_corr = evaluate_feature_correlations(
+    corr_matrix = evaluate_feature_correlations(
         df, target_col="target", method="pearson", threshold=0.8, display_plot=True
     )
 

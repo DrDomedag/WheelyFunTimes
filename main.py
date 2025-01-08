@@ -57,7 +57,6 @@ os.environ["GTFS_STATIC_KEY"] = GTFS_STATIC_KEY
 #print(pk.geoutils.flat_distance((0.1, 0.01), (0.2, 0.3)))
 
 
-#import training
 import inference
 import visualisation
 import util
@@ -153,8 +152,9 @@ backfill.backfill_list(fs, dates)
 #feature_update.update_historical(fs, 3)
 
 """Training pipeline"""
-#train_from_local_data = True
-#training.train(fs, mr, show_plot=False, train_from_local_data=train_from_local_data, upload_model=False)
+import training
+train_from_local_data = True
+training.train(fs, mr, show_plot=False, train_from_local_data=train_from_local_data, upload_model=True, do_random_hyperparameter_search=False)
 
 """Inference pipeline"""
 #result_df = inference.inference(fs, mr)
@@ -173,5 +173,39 @@ feature_update.get_weather(yesterday_string)"""
 #group_position.merge_stop(fs)
 
 #Get the most imprtance features
-feature_selection.get_features(mr)
+#feature_selection.get_features(mr)
 
+# Correlation matrix
+'''
+df = pd.read_csv(os.environ["cache_dir"] + '/training_data.csv')
+
+df = df.dropna()
+#df.info()
+df = df.drop(['route_long_name'], axis=1)
+
+availability_mapping = {
+        'EMPTY': 0,
+        'MANY_SEATS_AVAILABLE': 1,
+        'FEW_SEATS_AVAILABLE': 2,
+        'STANDING_ROOM_ONLY': 3,
+        'CRUSHED_STANDING_ROOM_ONLY': 4,
+        'FULL': 5
+    }
+
+df['vehicle_occupancy_status'] = df['vehicle_occupancy_status'].map(availability_mapping)
+
+df['datetime'] = pd.to_datetime(df['datetime'])
+df['dag_i_vecka'] = df['dag_i_vecka'].astype('category')
+#df['route_long_name'] = df['route_long_name'].astype('category')
+#training_data['route_id'] = training_data['route_id'].astype('category')
+
+df['vehicle_occupancy_status'] = df['vehicle_occupancy_status'].astype('int')
+df["arbetsfri_dag"] = df["arbetsfri_dag"].astype("bool")
+df["holiday"] = df["holiday"].astype("bool")
+df["helgdag"] = df["helgdag"].astype("bool")
+df["squeeze_day"] = df["squeeze_day"].astype("bool")
+df["helgdagsafton"] = df["helgdagsafton"].astype("bool")
+df["day_before_holiday"] = df["day_before_holiday"].astype("bool")
+
+feature_selection.correlation_matrix(df)
+'''
