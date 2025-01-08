@@ -75,8 +75,8 @@ We also tested the importance for the features in the model (gain, total gain, c
 
 
 <p float="left">
-  <img src="https://github.com/user-attachments/assets/111ebb80-a1db-4f59-abf2-502dbcd52631" width="500" />
-  <img src="https://github.com/user-attachments/assets/caf749f9-8524-448a-b551-7a9e64241ae3" width="500" /> 
+  <img src="https://github.com/user-attachments/assets/111ebb80-a1db-4f59-abf2-502dbcd52631" width="400" />
+  <img src="https://github.com/user-attachments/assets/caf749f9-8524-448a-b551-7a9e64241ae3" width="400" /> 
 </p>
 
 
