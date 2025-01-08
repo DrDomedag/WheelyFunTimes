@@ -171,6 +171,7 @@ yesterday_string = yesterday.strftime("%Y-%m-%d")
 feature_update.get_weather(yesterday_string)"""
 import group_position
 group_position.merge_stop(fs)
+#group_position.test(fs)
 
 #Get the most imprtance features
 #feature_selection.get_features(mr)

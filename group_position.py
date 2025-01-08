@@ -26,7 +26,7 @@ def get_single_day_vehicle_data(yesterday_string, date):
     prerequestfiles.make_requests([date])
     print("Done with making requests")
 
-    vehicle_df, static_data = vehicle_data.get_vehicle_position_data(company, yesterday_string, 15, 16)
+    vehicle_df, static_data = vehicle_data.get_vehicle_position_data(company, yesterday_string, 15, 18)
 
     vehicle_df["direction_id"] = vehicle_df["direction_id"].astype(bool)
 
@@ -65,7 +65,8 @@ def merge_stop(fs):
 
     yesterday_string = yesterday.strftime("%Y-%m-%d")
     vehicle_df, static_data = get_single_day_vehicle_data(yesterday_string, yesterday)
-    test_trip_id = list(pd.unique(vehicle_df["trip_id"]))[200]
+    test_trip_id = list(pd.unique(vehicle_df["trip_id"]))[2000]
+    print(len(test_trip_id))
     vehicle_df = vehicle_df[vehicle_df["trip_id"] == test_trip_id]
     #vehicle_df.info()
     #stop_df = get_stops(fs)
@@ -88,21 +89,20 @@ def merge_stop(fs):
     '''
 
     # Expand each bus and stop into a cross-product
-    bus_stop_pairs = vehicle_df.assign(key=1).merge(relevant_stops.assign(key=1), on='key').drop('key', axis=1)
+    #bus_stop_pairs = vehicle_df.assign(key=1).merge(relevant_stops.assign(key=1), on='key').drop('key', axis=1)
+    bus_stop_pairs = vehicle_df.merge(relevant_stops, how="cross")
     
     
-    specific = bus_stop_pairs[bus_stop_pairs["stop_name"] == "Höganäs Busstorget"]
-    print(specific[["vehicle_position_latitude", "vehicle_position_longitude"]].head(20))
+   
     # Calculate distance for each pair
     bus_stop_pairs['distance'] = bus_stop_pairs.apply(
         lambda row: haversine(row['vehicle_position_latitude'], row['vehicle_position_longitude'], row['stop_lat'], row['stop_lon']),
         axis=1
     )
-
-    print(bus_stop_pairs[["stop_name", "stop_lat", "vehicle_position_latitude", "stop_lon", "vehicle_position_longitude", "distance"]].head(20))
+    #specific = bus_stop_pairs[bus_stop_pairs["stop_name"] == "Malmö Katrinelund"]
+    #print(specific[["stop_name", "stop_lat", "vehicle_position_latitude", "stop_lon", "vehicle_position_longitude", "distance"]].head(20))
     # Find the closest bus for each stop
-    min_indices = bus_stop_pairs.groupby('stop_name')['distance'].idxmin()
-    print(min_indices)
+
     closest_buses = bus_stop_pairs.loc[bus_stop_pairs.groupby('stop_name').distance.idxmin()]
 
 
@@ -120,3 +120,50 @@ def merge_stop(fs):
     print("Result")
     result.info()
     print(result.head())
+
+# Function to calculate the closest vehicle for each stop
+def find_closest_vehicle(stops, vehicles):
+    closest_rows = []
+    
+    for _, stop in stops.iterrows():
+        stop_lon, stop_lat = stop['stop_lon'], stop['stop_lat']
+        
+        # Calculate the distance between this stop and all vehicles
+        distances = np.sqrt(
+            (vehicles['vehicle_position_longitude'] - stop_lon)**2 +
+            (vehicles['vehicle_position_latitude'] - stop_lat)**2
+        )
+        
+        # Find the index of the closest vehicle
+        closest_idx = distances.idxmin()
+        
+        # Combine the stop data with the closest vehicle data
+        closest_row = {**stop.to_dict(), **vehicles.loc[closest_idx].to_dict()}
+        closest_rows.append(closest_row)
+    
+    # Convert the list of closest rows to a DataFrame
+    return pd.DataFrame(closest_rows)
+
+def test(fs):
+    now = datetime.now()
+    yesterday = now - timedelta(days = 5)
+    day = yesterday.day
+    month = yesterday.month
+    year = yesterday.year
+
+    yesterday_string = yesterday.strftime("%Y-%m-%d")
+    vehicle_df, static_data = get_single_day_vehicle_data(yesterday_string, yesterday)
+    test_trip_id = list(pd.unique(vehicle_df["trip_id"]))[200]
+    vehicle_df = vehicle_df[vehicle_df["trip_id"] == test_trip_id]
+    #vehicle_df.info()
+    #stop_df = get_stops(fs)
+    #stop_df.info()
+
+    
+    stop_times = static_data.stop_times.reset_index()
+
+    relevant_stops = stop_times[stop_times["trip_id"] == test_trip_id]
+    result_df = find_closest_vehicle(relevant_stops, vehicle_df)
+    result_df.info()
+    
+    print(result_df.head(20))
