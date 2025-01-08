@@ -58,7 +58,7 @@ def haversine(lat1, lon1, lat2, lon2):
 #get_dates()
 def merge_stop(fs):
     now = datetime.now()
-    yesterday = now - timedelta(days = 3)
+    yesterday = now - timedelta(days = 5)
     day = yesterday.day
     month = yesterday.month
     year = yesterday.year
@@ -71,11 +71,14 @@ def merge_stop(fs):
     #stop_df = get_stops(fs)
     #stop_df.info()
 
-    relevant_stops = static_data.stop_times[static_data.stop_times["trip_id"] == test_trip_id]
+    stop_times = static_data.stop_times.reset_index()
+
+    relevant_stops = stop_times[stop_times["trip_id"] == test_trip_id]
     #relevant_stops = relevant_stops.unique("stop_id")
     
-    relevant_stops = relevant_stops.merge(static_data.stops, on='stop_id', how='left')
-
+    #relevant_stops = relevant_stops.merge(static_data.stops, on='stop_id', how='left')
+    #relevant_stops.info()
+    #print(relevant_stops.head())
     '''
     print("Pre-filtering")
     stop_df.info()
@@ -86,15 +89,22 @@ def merge_stop(fs):
 
     # Expand each bus and stop into a cross-product
     bus_stop_pairs = vehicle_df.assign(key=1).merge(relevant_stops.assign(key=1), on='key').drop('key', axis=1)
-
+    
+    
+    specific = bus_stop_pairs[bus_stop_pairs["stop_name"] == "Höganäs Busstorget"]
+    print(specific[["vehicle_position_latitude", "vehicle_position_longitude"]].head(20))
     # Calculate distance for each pair
     bus_stop_pairs['distance'] = bus_stop_pairs.apply(
         lambda row: haversine(row['vehicle_position_latitude'], row['vehicle_position_longitude'], row['stop_lat'], row['stop_lon']),
         axis=1
     )
 
+    print(bus_stop_pairs[["stop_name", "stop_lat", "vehicle_position_latitude", "stop_lon", "vehicle_position_longitude", "distance"]].head(20))
     # Find the closest bus for each stop
-    closest_buses = bus_stop_pairs.loc[bus_stop_pairs.groupby('stop_name')['distance'].idxmin()]
+    min_indices = bus_stop_pairs.groupby('stop_name')['distance'].idxmin()
+    print(min_indices)
+    closest_buses = bus_stop_pairs.loc[bus_stop_pairs.groupby('stop_name').distance.idxmin()]
+
 
     # Clean up the resulting dataframe
     result = closest_buses.rename(columns={
@@ -105,7 +115,7 @@ def merge_stop(fs):
     })
 
     # Välj ut rätt data
-    result = result[['stop_name', 'stop_latitude', 'stop_longitude', 'trip_id', 'bus_latitude', 'bus_longitude', 'distance']]
+    result = result[['stop_name', 'stop_latitude', 'stop_longitude', 'trip_id_x', 'bus_latitude', 'bus_longitude', 'distance']]
 
     print("Result")
     result.info()
