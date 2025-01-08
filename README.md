@@ -49,7 +49,7 @@ In addition to long-term historical data used for model training, the daily feat
 ## Architecture
 ![architecture](https://github.com/user-attachments/assets/9e3d9f34-e345-4df8-a7b1-fa8b8ca8db59)
 
-**Figure X:** An overview of the project’s software architecture
+**Figure 1:** An overview of the project’s software architecture
 
 ### Pipelines
 Backfill - Loads historical vehicle, weather and calendar data for a desired period of time. The data is cleaned and uploaded into separate feature groups in Hugging Face.
@@ -63,15 +63,15 @@ XGBoostClassification, a decision tree ensemble model, was used for training and
 Suitable model parameters were found using the RandomizedSearchCV class from scikit-learn, although the impact on the model’s performance compared to the XGBoostClassifier class’ base values was marginal.
 
 ## Feature engineering
-We did a correlation matrix to find if there were any features with high correlation that could be removed from the model. The matrix mainly indicated high correlation between the different day-features, and we decided to remove the features indicating the day of the week, whether the day was a holiday and whether it was an informal holiday or a bank holiday. Each correlated significantly to the others, and notably to the feature indicating whether the day was a labour-free day, which was kept to maintain this information.
+We created a correlation matrix (Figure 2) to determine whether there were any features with high correlation that could be removed from the model. The matrix mainly indicated high correlation between the different day-features, and we decided to remove the features indicating the day of the week, whether the day was a holiday and whether it was an informal holiday or a bank holiday. Each correlated significantly to the others, and notably to the feature indicating whether the day was a labour-free day, which was kept to maintain this information.
 
 ![Figure_1](https://github.com/user-attachments/assets/f2dd9d29-49e0-4f8f-9722-f8f09a1d883f)
 
-**Figure X:** Correlation matrix for all of the model’s features. The “Unknown” feature is a duplicate of the datetime feature, and neither was used in training.
+**Figure 2:** Correlation matrix for all of the model’s features. The “Unknown” feature is a duplicate of the datetime feature, and neither was used in training.
 
 
 
-We also tested the importance for the features in the model (gain, total gain, cover and total cover), and some of the results can be seen in Figure X. 
+We also tested the importance for the features in the model (gain, total gain, cover and total cover), and some of the results can be seen in Figure 3.
 
 
 <p float="left">
@@ -80,7 +80,7 @@ We also tested the importance for the features in the model (gain, total gain, c
 </p>
 
 
-**Figure X:** Total Gain vs. Total Cover and Gain vs. Total Gain - note that the bus route name feature has been excluded, as its importance on all axes was so great that the other points ended up indistinguishable in one corner.
+**Figure 3:** Total Gain vs. Total Cover and Gain vs. Total Gain - note that the bus route name feature has been excluded, as its importance on all axes was so great that the other points ended up indistinguishable in one corner.
 
 Based on these results, we tried removing the features that seemed to have the lowest overall importance to improve the model, namely which direction the bus was going in on its route, and which minute of the hour the observation was made. The direction id could possibly have been relevant if, for example, buses heading into the city were more packed in the morning than the ones leaving it, and vice versa in the afternoon, but this seemed not to meaningfully be the case. The low impact of the minute value is unsurprising.
 
