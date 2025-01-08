@@ -91,6 +91,16 @@ def show_feature_importance_total_gain(model):
     df = df.sort_values("total_gain_importance")
     print(df.tail(100))
     return df
+
+def show_feature_importance_total_cover(model):
+    mgb = model.get_booster()
+    importance = mgb.get_score(importance_type="total_cover")
+    names = list(importance.keys())
+    values = list(importance.values())
+    df = pd.DataFrame({"name":names, "total_cover_importance":values})
+    df = df.sort_values("total_cover_importance")
+    return df
+
 # Example usage:
 # df_selected = feature_selection(df, target_col="target", method="importance", n_features=5)
 
@@ -189,6 +199,7 @@ def get_features(mr):
     gain_df = show_feature_importance_gain(retrieved_xgboost_model)
     cover_df = show_feature_importance_coverage(retrieved_xgboost_model)
     total_gain_df = show_feature_importance_total_gain(retrieved_xgboost_model)
+    total_cover_df = show_feature_importance_total_cover(retrieved_xgboost_model)
 
         # Merge DataFrames on feature names
     merged_df = pd.merge(gain_df, total_gain_df, on="name")
@@ -292,6 +303,43 @@ def get_features(mr):
     plt.tight_layout()
     # Save the figure
     plt.savefig("importance_plots/gain_vs_cover.png", dpi=300)
+    plt.show()
+
+
+    ## Total cover vs. total gain
+    merged_df = pd.merge(total_gain_df, total_cover_df, on="name")
+    merged_df = merged_df[merged_df["name"]!="route_long_name"]
+    
+        # Scatter plot
+    plt.figure(figsize=(12, 8))
+    scatter = sns.scatterplot(
+        data=merged_df,
+        x="total_cover_importance",
+        y="total_gain_importance",
+        size="total_cover_importance",
+        hue="total_cover_importance",
+        palette="viridis",
+        sizes=(20, 200)
+    )
+    
+    # Add labels for each point
+    for i in range(len(merged_df)):
+        plt.text(
+            x=merged_df["total_cover_importance"].iloc[i],
+            y=merged_df["total_gain_importance"].iloc[i],
+            s=merged_df["name"].iloc[i],
+            fontsize=9,
+            ha='right'
+        )
+    
+    plt.title("Feature Importance: Total Gain vs Total Cover", fontsize=16)
+    plt.xlabel("Total Cover Importance", fontsize=14)
+    plt.ylabel("Total Gain Importance", fontsize=14)
+    plt.grid(True)
+    plt.legend(title="Total Cover Importance", bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    # Save the figure
+    plt.savefig("importance_plots/total_gain_vs_total_cover.png", dpi=300)
     plt.show()
 
 

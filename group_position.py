@@ -57,10 +57,13 @@ def haversine(lat1, lon1, lat2, lon2):
 def merge_all_stops(vehicle_df, stop_df):
     unique_trip_ids = list(vehicle_df["trip_id"].unique())
 
+    total_trip_ids= len(unique_trip_ids)
+
     final_df = pd.DataFrame()
-    for trip_id in unique_trip_ids:
+    for i, trip_id in enumerate(unique_trip_ids):
+        print(f"Merging trip {i} of {total_trip_ids}...")
         result_df = merge_stop(trip_id, vehicle_df, stop_df)
-        final_df = pd.concat(final_df, result_df, axis=1)
+        final_df = pd.concat([final_df, result_df], axis=1)
     
     return final_df
 
@@ -75,7 +78,7 @@ def merge_stop(trip_id, vehicle_df, stop_df):
 
     stop_df = stop_df.reset_index()
 
-    stop_df = stop_df["stop_name", "stop_lat", "stop_lon", "trip_id"]
+    stop_df = stop_df[["trip_id", "stop_name", "stop_lat", "stop_lon"]]
 
     relevant_stops = stop_df[stop_df["trip_id"] == trip_id]
     #relevant_stops = relevant_stops.unique("stop_id")
@@ -108,19 +111,15 @@ def merge_stop(trip_id, vehicle_df, stop_df):
 
     result = bus_stop_pairs.loc[bus_stop_pairs.groupby('stop_name').distance.idxmin()]
 
-    result.info()
-    print(result.head())
-
     result = result.rename(columns={"trip_id_x": "trip_id"})
 
     # Välj ut rätt data
     #result = result[['stop_name', 'stop_latitude', 'stop_longitude', 'trip_id_x', 'bus_latitude', 'bus_longitude', 'distance']]
     threshold = 1.0
-    print(f"Maximum distance: {result['distance'].max()}, number of distances > {threshold}: {(result['distance'] > threshold).sum()}")
+    #print(f"Maximum distance: {result['distance'].max()}, number of distances > {threshold}: {(result['distance'] > threshold).sum()}")
 
     result = result[result['distance'] < threshold]
-
-    result = result.drop(['distance', 'stop_lat', 'stop_lon', "trip_id_y", "stop_id"], axis=1)
+    result = result.drop(['distance', 'stop_lat', 'stop_lon', "trip_id_y"], axis=1)
 
     return result
 

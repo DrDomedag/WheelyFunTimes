@@ -93,6 +93,7 @@ def inference(fs, mr):
     pred_df = get_data(fs)
 
     pred_df = pred_df.dropna()
+    pred_df = pred_df.drop_duplicates(['vehicle_position_latitude', 'vehicle_position_longitude', 'trip_id'])
 
     #pred_df = drop_near_dublicates(pred_df)
 
@@ -109,11 +110,11 @@ def inference(fs, mr):
 
     #pred_features = pred_df.drop(["trip_id", "datetime", "route_short_name"], axis=1)
     
-    pred_features = pred_df[['vehicle_position_latitude', 'vehicle_position_longitude', 'route_long_name', 'direction_id', 'temperature_2m', 'precipitation', 'wind_speed_10m', 'hourly_cloud_cover', 'dag_i_vecka', 'arbetsfri_dag', 'holiday', 'helgdag', 'squeeze_day', 'helgdagsafton', 'day_before_holiday', 'hour', 'minute']]
+    pred_features = pred_df[['vehicle_position_latitude', 'vehicle_position_longitude', 'route_long_name', 'temperature_2m', 'precipitation', 'wind_speed_10m', 'hourly_cloud_cover', 'arbetsfri_dag', 'squeeze_day', 'helgdagsafton', 'day_before_holiday', 'hour']]
 
     retrieved_model = mr.get_model(
         name="bus_occupancy_xgboost_model",
-        version=3,
+        version=10,
     )
 
     # Download the saved model artifacts to a local directory

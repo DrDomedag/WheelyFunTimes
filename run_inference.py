@@ -1,4 +1,5 @@
 import os
+import time
 
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = "python"
 
@@ -40,12 +41,15 @@ API_KEY = config_data.get('api_key', '')
 
 #print(pk.geoutils.flat_distance((0.1, 0.01), (0.2, 0.3)))
 
+# This runs immediately following run_feature_update, so we wait for Hopsworks ingestion before attempting to get the data we just uploaded for inference purposes.
+# This could presumably also be done in the github action, but this is good enough.
+wait_time = 5 * 60
+time.sleep(wait_time)
 
 project = hopsworks.login(project="id2223AirQuality")
 
 fs = project.get_feature_store()
 mr = project.get_model_registry()
-
 
 """Inference pipeline"""
 result_df = inference.inference(fs, mr)

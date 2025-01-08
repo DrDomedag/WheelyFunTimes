@@ -23,7 +23,7 @@ from hsml.model_schema import ModelSchema
 from sklearn.metrics import log_loss, r2_score, accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 import xgboost as xgb
 import matplotlib.pyplot as plt
-from hyperopt import fmin, tpe, hp
+#from hyperopt import fmin, tpe, hp
 
 from sklearn.model_selection import RandomizedSearchCV
 import scipy.stats as stats
@@ -52,11 +52,12 @@ def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=Tru
 
     training_data = training_data.dropna()
 
-    training_data = group_position.merge_all_stops(training_data, stop_data)
+    #print("Merging all stops:")
+    #training_data = group_position.merge_all_stops(training_data, stop_data)
 
-    print("Merged training data")
-    training_data.info()
-    print(training_data.head())
+    #print("Merged training data")
+    #training_data.info()
+    #print(training_data.head())
 
     # Create a mapping dictionary
     availability_mapping = {
@@ -83,17 +84,19 @@ def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=Tru
     training_data["helgdagsafton"] = training_data["helgdagsafton"].astype("bool")
     training_data["day_before_holiday"] = training_data["day_before_holiday"].astype("bool")
     
-    training_data["stop_name"] = training_data["stop_name"].astype("category")
+    #training_data["stop_name"] = training_data["stop_name"].astype("category")
     #training_data["arbetsfri_dag"] = training_data["arbetsfri_dag"].astype("bool")
     
     #training_data['datetime'] = pd.to_datetime(training_data['datetime'])
     #training_data['datetime'] = training_data['datetime'].tz_localize(None)
 
     # Dropping data ruled to be less valuable based on the correlation matrix:
-    training_data = training_data.drop(["holiday", "dag_i_vecka", "helgdag"], axis=1)
+    #training_data = training_data.drop(["holiday", "dag_i_vecka", "helgdag"], axis=1)
 
     # Dropping data ruled to be less valuable based on the importance metrics:
-    training_data = training_data.drop(["direction_id", "minute"], axis=1)
+    #training_data = training_data.drop(["direction_id", "minute"], axis=1)
+
+    training_data = training_data[['id', 'trip_id', 'datetime', 'route_short_name', 'vehicle_occupancy_status', 'vehicle_position_latitude', 'vehicle_position_longitude', 'route_long_name', 'temperature_2m', 'precipitation', 'wind_speed_10m', 'hourly_cloud_cover', 'arbetsfri_dag', 'squeeze_day', 'helgdagsafton', 'day_before_holiday', 'hour']]
     
     split_date = "2024-12-25 00:00:00" # ~80%
     #split_date = pd.to_datetime("2024-12-27 00:00:00")
@@ -155,6 +158,7 @@ def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=Tru
     '''
 
     # Fitting the XGBoost Regressor to the training data
+    print("Starting training...")
     xgb_classifier.fit(train_features, train_labels)
 
     # Predicting target values on the test set
@@ -217,7 +221,7 @@ def train(fs, mr, show_plot=False, train_from_local_data=False, upload_model=Tru
             model_schema=model_schema,
             input_example=test_features.sample().values, 
             description="Bus occupancy predictor for Skane",
-            version=9
+            version=10
         )
 
         # Saving the model artifacts to the 'air_quality_model' directory in the model registry
