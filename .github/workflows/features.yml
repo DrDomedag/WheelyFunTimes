@@ -1,4 +1,4 @@
-name: features
+name: features_and_inference
 on:
   workflow_dispatch:
   schedule:
