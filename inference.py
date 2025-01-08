@@ -139,6 +139,10 @@ def inference(fs, mr):
 
     merged_df = merge_with_stops.merge_exact(fs, result_df)
 
+    print(f"len(merged_df) before dropna: {len(merged_df)}")
+    merged_df = merged_df.dropna()
+    print(f"len(merged_df) after dropna: {len(merged_df)}")
+
     upload_result_to_hopsworks(fs, merged_df)
 
     return merged_df
